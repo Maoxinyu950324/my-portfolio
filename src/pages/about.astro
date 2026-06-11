@@ -1,20 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadSiteConfig } from '../config';
-import { getCollection } from 'astro:content';
 
 const config = loadSiteConfig();
 const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : null;
-
-// 读取 about.md 页面内容作为补充
-const aboutPages = await getCollection('pages');
-const aboutPage = aboutPages.find(p => p.id === 'about');
-const aboutData = aboutPage?.data;
-
-// 合并社交链接：优先用 site-config.json，否则用 about.md
-const mergedSocialLinks = (config.socialLinks && config.socialLinks.length > 0)
-  ? config.socialLinks
-  : (aboutData?.social?.map(s => ({ platform: s.platform, url: s.url, label: s.platform })) || []);
 ---
 
 <BaseLayout title={`ABOUT - ${config.siteName}`}>
@@ -40,14 +29,12 @@ const mergedSocialLinks = (config.socialLinks && config.socialLinks.length > 0)
         <div class="contact-bio-text">
           {config.aboutContent ? (
             config.aboutContent.split('\n').filter(line => line.trim()).map(line => <p>{line}</p>)
-          ) : aboutData?.bio ? (
-            aboutData.bio.split('\n').filter(line => line.trim()).map(line => <p>{line}</p>)
           ) : (
             <p>品牌设计师 / 视觉设计师</p>
           )}
-          {mergedSocialLinks.length > 0 && (
+          {config.socialLinks && config.socialLinks.length > 0 && (
             <div class="contact-links">
-              {mergedSocialLinks.map((link) => (
+              {config.socialLinks.map((link) => (
                 <a href={link.url} target="_blank" rel="noopener noreferrer">
                   {link.label || link.platform}
                 </a>
