@@ -481,7 +481,7 @@ async function handleFiles(files) {
   for (const file of files) {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('image', file);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       if (!res.ok) throw new Error('上传失败');
       const data = await res.json();
@@ -539,10 +539,10 @@ async function saveProject() {
   
   try {
     if (currentProjectId) {
-      await api(`/projects/${currentProjectId}`, { method: 'PUT', body: data });
+      await api(`/projects/${currentProjectId}`, { method: 'POST', body: data });
       toast('作品已更新', 'success');
     } else {
-      const result = await api('/projects', { method: 'POST', body: data });
+      const result = await api('/projects', { method: 'POST', body: { ...data, id: data.title.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '-').replace(/--+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now() } });
       currentProjectId = result.id;
       toast('作品已创建', 'success');
     }
@@ -579,7 +579,7 @@ async function loadSiteConfig() {
   mc.innerHTML = '<div style="text-align:center;padding:40px;color:#9ca3af;">加载配置中...</div>';
   
   try {
-    const config = await api('/config');
+    const config = await api('/site-config');
     siteConfig = config;
     renderSiteConfig();
   } catch (e) {
@@ -863,7 +863,7 @@ async function saveSiteConfig() {
   };
   
   try {
-    await api('/config', { method: 'PUT', body: config });
+    await api('/site-config', { method: 'POST', body: config });
     siteConfig = config;
     toast('配置已保存', 'success');
   } catch (e) {

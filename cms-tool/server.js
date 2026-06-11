@@ -141,7 +141,35 @@ app.get('/api/projects/:id', (req, res) => {
   }
 });
 
-// 保存作品
+// 创建新作品（必须放在 :id 路由之前，避免被 :id 匹配）
+app.post('/api/projects', (req, res) => {
+  try {
+    const { id, title, description, category, body } = req.body;
+    const fileId = id || `project-${Date.now()}`;
+    const filePath = join(PROJECT_ROOT, 'content/projects', `${fileId}.md`);
+    
+    if (existsSync(filePath)) {
+      return res.status(400).json({ error: '该标识已存在' });
+    }
+    
+    const frontmatter = `---
+title: "${title || '新作品'}"
+description: "${description || ''}"
+category: "${category || '其他'}"
+published: true
+date: "${new Date().toISOString()}"
+---
+
+${body || ''}`;
+    
+    writeFileSync(filePath, frontmatter, 'utf-8');
+    res.json({ success: true, id: fileId, message: '创建成功！' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 保存/编辑作品
 app.post('/api/projects/:id', (req, res) => {
   try {
     const { title, description, category, cover, tags, published, date, body, gallery } = req.body;
@@ -174,34 +202,6 @@ app.post('/api/projects/:id', (req, res) => {
     writeFileSync(filePath, frontmatter, 'utf-8');
     
     res.json({ success: true, message: '保存成功！' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 创建新作品
-app.post('/api/projects', (req, res) => {
-  try {
-    const { id, title, description, category, body } = req.body;
-    const fileId = id || `project-${Date.now()}`;
-    const filePath = join(PROJECT_ROOT, 'content/projects', `${fileId}.md`);
-    
-    if (existsSync(filePath)) {
-      return res.status(400).json({ error: '该标识已存在' });
-    }
-    
-    const frontmatter = `---
-title: "${title || '新作品'}"
-description: "${description || ''}"
-category: "${category || '其他'}"
-published: true
-date: "${new Date().toISOString()}"
----
-
-${body || ''}`;
-    
-    writeFileSync(filePath, frontmatter, 'utf-8');
-    res.json({ success: true, id: fileId, message: '创建成功！' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -269,48 +269,48 @@ app.get('/api/site-config', (req, res) => {
       const config = JSON.parse(readFileSync(configPath, 'utf-8'));
       return res.json(config);
     }
-    // 默认配置
+    // 默认配置（字段名与前端 renderSiteConfig 保持一致）
     res.json({
       siteName: '我的作品集',
+      siteSubtitle: '',
       siteDescription: '设计师 / 创造美好体验',
       siteKeywords: '设计,作品集,UI设计',
-      favicon: '',
-      logo: '',
       
       // 主题颜色
       primaryColor: '#6366f1',
-      secondaryColor: '#ec4899',
-      backgroundColor: '#ffffff',
-      textColor: '#111827',
-      accentColor: '#f59e0b',
+      bgColor: '#ffffff',
+      textColor: '#1f2937',
+      footerBg: '#1a1a2e',
       
       // 字体
-      headingFont: 'Inter',
-      bodyFont: 'Inter',
+      bodyFont: '-apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif',
+      headingFont: 'inherit',
+      bodyFontSize: 16,
+      lineHeight: 1.8,
       
-      // 首页
+      // 首页 Hero
       heroTitle: 'Hi, 我是设计师',
       heroSubtitle: '创造美好的用户体验',
-      heroBackground: '',
-      heroOverlay: true,
+      heroDescription: '',
+      heroBtnText: '查看我的作品',
+      heroBtnLink: '#projects',
+      heroBgImage: '',
       
       // 关于我
-      aboutTitle: '关于我',
-      aboutAvatar: '',
-      aboutBio: '',
-      aboutEmail: '',
+      aboutContent: '',
+      avatarUrl: '',
+      showAvatar: true,
       
       // 社交链接
       socialLinks: [],
       
       // 页脚
-      footerText: '© 2024 版权所有',
-      footerLinks: [],
+      copyright: '© 2025 版权所有',
+      icp: '',
       
       // 高级样式
-      customCSS: '',
-      borderRadius: '12px',
-      animationEnabled: true,
+      customCss: '',
+      customHead: '',
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
