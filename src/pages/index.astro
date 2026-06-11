@@ -89,7 +89,7 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 实心渐变球（速度感应拉伸变形，仅在开屏页） ===
+  // === 实心渐变球（速度感应拉伸变形，渐变方向固定） ===
   (function() {
     var blob = document.getElementById('cursor-blob');
     var intro = document.getElementById('intro-screen');
@@ -98,7 +98,7 @@ introLines.forEach((line, li) => {
     var cx = mx, cy = my;
     var prevX = mx, prevY = my;
     var vx = 0, vy = 0;
-    var scaleX = 1, scaleY = 1, angle = 0;
+    var scaleX = 1, scaleY = 1;
     var pressScale = 1;
 
     document.addEventListener('mousemove', function(e) {
@@ -109,7 +109,6 @@ introLines.forEach((line, li) => {
     window.addEventListener('pointerup', function() { pressScale = 1; });
 
     function animate() {
-      // intro 消失后停止
       if (intro.style.visibility === 'hidden') { blob.style.display = 'none'; return; }
       blob.style.display = '';
 
@@ -121,21 +120,22 @@ introLines.forEach((line, li) => {
       prevY = my;
 
       var speed = Math.sqrt(vx * vx + vy * vy);
-      var targetAngle = Math.atan2(vy, vx);
+      var angle = Math.atan2(vy, vx);
       var stretch = Math.min(1 + speed * 0.015, 1.6);
 
-      var targetSX = pressScale * stretch;
-      var targetSY = pressScale / stretch;
+      // 在屏幕坐标系下分解拉伸，不旋转球体，渐变方向固定不变
+      var cosA = Math.cos(angle);
+      var sinA = Math.sin(angle);
+      var targetSX = pressScale * Math.sqrt(stretch * stretch * cosA * cosA + sinA * sinA / (stretch * stretch));
+      var targetSY = pressScale * Math.sqrt(stretch * stretch * sinA * sinA + cosA * cosA / (stretch * stretch));
       scaleX += (targetSX - scaleX) * 0.15;
       scaleY += (targetSY - scaleY) * 0.15;
-      angle += (targetAngle - angle) * 0.15;
 
       cx += (mx - cx) * 0.14;
       cy += (my - cy) * 0.14;
 
       blob.style.transform =
         'translate3d(' + (cx - 70) + 'px, ' + (cy - 70) + 'px, 0) ' +
-        'rotate(' + (angle * 180 / Math.PI) + 'deg) ' +
         'scaleX(' + scaleX + ') scaleY(' + scaleY + ')';
 
       requestAnimationFrame(animate);
