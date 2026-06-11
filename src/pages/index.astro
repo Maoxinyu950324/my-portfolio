@@ -102,15 +102,13 @@ introLines.forEach((line, li) => {
 
   // === 4 层跟随光标的实心光球（完全复刻参考站） ===
   (function() {
-    var intro = document.getElementById('intro-screen');
-    if (!intro) return;
-
-    // 创建 canvas
+    // 创建 canvas 挂到 body 上，不随 intro 消失
     var canvas = document.createElement('canvas');
+    canvas.id = 'blob-canvas';
     canvas.style.cssText = 'position:fixed;top:0;left:0;z-index:9997;pointer-events:none;';
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    intro.appendChild(canvas);
+    document.body.appendChild(canvas);
     var ctx = canvas.getContext('2d');
 
     // 4 层参数（完全对齐参考站）
@@ -170,7 +168,6 @@ introLines.forEach((line, li) => {
     }
 
     function animate() {
-      if (intro.style.visibility === 'hidden') return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (var i = 0; i < 4; i++) {
