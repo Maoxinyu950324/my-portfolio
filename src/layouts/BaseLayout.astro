@@ -20,8 +20,6 @@ const { title = config.siteName, description = config.siteDescription } = Astro.
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
   <title>{title}</title>
   {config.customHead && <Fragment set:html={config.customHead} />}
-
-  <!-- 背景音乐（循环播放，初始静音等待用户触发） -->
   <audio id="bg-music" loop preload="auto" style="display:none;">
     <source src="/audio/bg-music.mp3" type="audio/mpeg" />
   </audio>
@@ -57,43 +55,57 @@ const { title = config.siteName, description = config.siteDescription } = Astro.
 
 <script>
   // === 自定义光标 ===
-  const cursor = document.getElementById('custom-cursor');
-  const svg = cursor?.querySelector('svg');
+  (function() {
+    var cursor = document.getElementById('custom-cursor');
+    var svg = cursor ? cursor.querySelector('svg') : null;
+    if (!cursor || !svg || !window.matchMedia('(pointer: fine)').matches) return;
 
-  if (cursor && svg && window.matchMedia('(pointer: fine)').matches) {
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let cx = mx, cy = my;
-    let angle = 0;
-    let visible = false;
-
-    function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var cx = mx, cy = my;
+    var angle = 0;
+    var visible = false;
 
     function animate() {
-      cx = lerp(cx, mx, 0.18);
-      cy = lerp(cy, my, 0.18);
-      cursor!.style.transform = `translate3d(${cx}px, ${cy}px, 0) rotate(${angle}deg)`;
+      cx += (mx - cx) * 0.18;
+      cy += (my - cy) * 0.18;
+      cursor.style.transform = 'translate3d(' + cx + 'px, ' + cy + 'px, 0) rotate(' + angle + 'deg)';
       requestAnimationFrame(animate);
     }
 
-    window.addEventListener('pointermove', (e) => {
-      const dx = e.clientX - mx;
-      const dy = e.clientY - my;
-      if (Math.abs(dx) + Math.abs(dy) > 1) angle = Math.atan2(dy, dx) * (180 / Math.PI) + 45;
-      mx = e.clientX; my = e.clientY;
-      if (!visible) { visible = true; cursor!.style.visibility = 'visible'; cursor!.style.opacity = '1'; }
+    window.addEventListener('pointermove', function(e) {
+      var dx = e.clientX - mx;
+      var dy = e.clientY - my;
+      if (Math.abs(dx) + Math.abs(dy) > 1) {
+        angle = Math.atan2(dy, dx) * (180 / Math.PI) + 45;
+      }
+      mx = e.clientX;
+      my = e.clientY;
+      if (!visible) {
+        visible = true;
+        cursor.style.visibility = 'visible';
+        cursor.style.opacity = '1';
+      }
     }, { passive: true });
 
-    window.addEventListener('pointerdown', () => { svg.style.transform = 'scale(0.82)'; });
-    window.addEventListener('pointerup', () => { svg.style.transform = 'scale(1)'; });
+    window.addEventListener('pointerdown', function() { svg.style.transform = 'scale(0.82)'; });
+    window.addEventListener('pointerup', function() { svg.style.transform = 'scale(1)'; });
 
-    document.documentElement.addEventListener('mouseout', (e) => {
-      if (!e.relatedTarget) { visible = false; cursor!.style.opacity = '0'; setTimeout(() => { if (!visible) cursor!.style.visibility = 'hidden'; }, 300); }
+    document.documentElement.addEventListener('mouseout', function(e) {
+      if (!e.relatedTarget) {
+        visible = false;
+        cursor.style.opacity = '0';
+        setTimeout(function() {
+          if (!visible) cursor.style.visibility = 'hidden';
+        }, 300);
+      }
     });
 
-    document.documentElement.addEventListener('mouseenter', () => {
-      visible = true; cursor!.style.visibility = 'visible'; cursor!.style.opacity = '1';
+    document.documentElement.addEventListener('mouseenter', function() {
+      visible = true;
+      cursor.style.visibility = 'visible';
+      cursor.style.opacity = '1';
     });
 
     requestAnimationFrame(animate);
-  }
+  })();
 </script>
