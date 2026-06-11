@@ -1,24 +1,96 @@
 import express from 'express';
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
+import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '..');
 const app = express();
 const PORT = 3001;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(join(__dirname, 'public')));
+// 确保上传目录存在
+const uploadsDir = join(PROJECT_ROOT, 'public/uploads');
+if (!existsSync(uploadsDir)) {
+  mkdirSync(uploadsDir, { recursive: true });
+}
 
-// ===== API 路由 =====
+// 配置 multer 图片上传
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const ext = extname(file.originalname).toLowerCase();
+    cb(null, `${Date.now()}-${uuidv4().slice(0, 8)}${ext}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const ext = extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('不支持的文件格式，请上传 JPG/PNG/GIF/WebP/SVG'));
+    }
+  },
+});
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.static(join(__dirname, 'public')));
+app.use('/uploads', express.static(uploadsDir));
+
+// ===== 图片上传 API =====
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: '请选择图片' });
+  }
+  const url = `/uploads/${req.file.filename}`;
+  res.json({ success: true, url, filename: req.file.filename });
+});
+
+// 批量上传
+app.post('/api/upload-multiple', upload.array('images', 20), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: '请选择图片' });
+  }
+  const urls = req.files.map(f => ({
+    url: `/uploads/${f.filename}`,
+    filename: f.filename,
+  }));
+  res.json({ success: true, urls });
+});
+
+// 获取已上传图片列表
+app.get('/api/images', (req, res) => {
+  try {
+    const files = readdirSync(uploadsDir).filter(f => {
+      const ext = extname(f).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext);
+    });
+    const images = files.map(f => ({
+      url: `/uploads/${f}`,
+      filename: f,
+      size: existsSync(join(uploadsDir, f)) ? 0 : 0,
+    })).reverse();
+    res.json(images);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== 作品 API =====
 
 // 获取所有作品
 app.get('/api/projects', (req, res) => {
   try {
     const projectsDir = join(PROJECT_ROOT, 'content/projects');
+    if (!existsSync(projectsDir)) mkdirSync(projectsDir, { recursive: true });
     const files = readdirSync(projectsDir).filter(f => f.endsWith('.md'));
     const projects = files.map(file => {
       const content = readFileSync(join(projectsDir, file), 'utf-8');
@@ -74,7 +146,6 @@ app.post('/api/projects/:id', (req, res) => {
   try {
     const { title, description, category, cover, tags, published, date, body, gallery } = req.body;
     
-    // 构建 frontmatter
     let frontmatter = '---\n';
     frontmatter += `title: "${title || ''}"\n`;
     frontmatter += `description: "${description || ''}"\n`;
@@ -142,7 +213,6 @@ app.delete('/api/projects/:id', (req, res) => {
     const filePath = join(PROJECT_ROOT, 'content/projects', `${req.params.id}.md`);
     if (existsSync(filePath)) {
       writeFileSync(filePath, '', 'utf-8');
-      // 标记删除：清空内容
     }
     res.json({ success: true, message: '已删除' });
   } catch (err) {
@@ -189,6 +259,75 @@ app.post('/api/pages/:name', (req, res) => {
   }
 });
 
+// ===== 网站配置 API =====
+
+// 获取网站配置
+app.get('/api/site-config', (req, res) => {
+  try {
+    const configPath = join(PROJECT_ROOT, 'site-config.json');
+    if (existsSync(configPath)) {
+      const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+      return res.json(config);
+    }
+    // 默认配置
+    res.json({
+      siteName: '我的作品集',
+      siteDescription: '设计师 / 创造美好体验',
+      siteKeywords: '设计,作品集,UI设计',
+      favicon: '',
+      logo: '',
+      
+      // 主题颜色
+      primaryColor: '#6366f1',
+      secondaryColor: '#ec4899',
+      backgroundColor: '#ffffff',
+      textColor: '#111827',
+      accentColor: '#f59e0b',
+      
+      // 字体
+      headingFont: 'Inter',
+      bodyFont: 'Inter',
+      
+      // 首页
+      heroTitle: 'Hi, 我是设计师',
+      heroSubtitle: '创造美好的用户体验',
+      heroBackground: '',
+      heroOverlay: true,
+      
+      // 关于我
+      aboutTitle: '关于我',
+      aboutAvatar: '',
+      aboutBio: '',
+      aboutEmail: '',
+      
+      // 社交链接
+      socialLinks: [],
+      
+      // 页脚
+      footerText: '© 2024 版权所有',
+      footerLinks: [],
+      
+      // 高级样式
+      customCSS: '',
+      borderRadius: '12px',
+      animationEnabled: true,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 保存网站配置
+app.post('/api/site-config', (req, res) => {
+  try {
+    const configPath = join(PROJECT_ROOT, 'site-config.json');
+    writeFileSync(configPath, JSON.stringify(req.body, null, 2), 'utf-8');
+    res.json({ success: true, message: '配置已保存！' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 推送到 GitHub
 app.post('/api/deploy', async (req, res) => {
   try {
@@ -201,7 +340,7 @@ app.post('/api/deploy', async (req, res) => {
     
     res.json({ success: true, message: '已推送到 GitHub，Vercel 将自动部署！' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `部署失败: ${err.message}` });
   }
 });
 

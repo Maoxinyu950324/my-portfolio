@@ -25,6 +25,11 @@
     .sidebar-header button { background: #6366f1; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
     .sidebar-header button:hover { background: #4f46e5; }
     
+    .nav-tabs { display: flex; border-bottom: 1px solid #e5e7eb; }
+    .nav-tabs button { flex: 1; padding: 12px; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 500; color: #6b7280; transition: all 0.2s; }
+    .nav-tabs button:hover { background: #f9fafb; }
+    .nav-tabs button.active { color: #6366f1; background: #eef2ff; font-weight: 600; }
+    
     .project-item { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; }
     .project-item:hover { background: #f9fafb; }
     .project-item.active { background: #eef2ff; border-left: 3px solid #6366f1; }
@@ -48,18 +53,34 @@
     
     .gallery-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
     .gallery-item input { flex: 1; }
-    .gallery-item button { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .gallery-item .gallery-preview { width: 60px; height: 60px; border-radius: 6px; object-fit: cover; background: #f0f0f0; cursor: pointer; flex-shrink: 0; }
+    .gallery-item button { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; flex-shrink: 0; }
     .btn-add-gallery { background: #e5e7eb; border: 1px dashed #9ca3af; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; width: 100%; color: #6b7280; }
     .btn-add-gallery:hover { background: #f3f4f6; }
     
-    .save-bar { position: fixed; bottom: 0; left: 320px; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 15px 30px; display: flex; gap: 10px; justify-content: flex-end; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+    .upload-area { border: 2px dashed #d1d5db; border-radius: 12px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; }
+    .upload-area:hover, .upload-area.dragover { border-color: #6366f1; background: #f5f3ff; }
+    .upload-area p { color: #6b7280; font-size: 14px; }
+    .upload-area .icon { font-size: 40px; margin-bottom: 10px; }
+    .upload-area input[type="file"] { display: none; }
+    
+    .image-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; padding: 10px; background: #f9fafb; border-radius: 8px; }
+    .image-picker img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; }
+    .image-picker img:hover { border-color: #6366f1; transform: scale(1.05); }
+    .image-picker img.selected { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.3); }
+    
+    .upload-btn { display: inline-flex; align-items: center; gap: 6px; background: #6366f1; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .upload-btn:hover { background: #4f46e5; }
+    .upload-btn-sm { padding: 4px 10px; font-size: 12px; }
+    
+    .save-bar { position: fixed; bottom: 0; left: 320px; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 15px 30px; display: flex; gap: 10px; justify-content: flex-end; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .save-bar button { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
     .btn-save { background: #6366f1; color: white; }
     .btn-save:hover { background: #4f46e5; }
     .btn-delete { background: #fee2e2; color: #dc2626; }
     .btn-delete:hover { background: #fecaca; }
     
-    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 500; z-index: 1000; animation: slideIn 0.3s ease; }
+    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 500; z-index: 9999; animation: slideIn 0.3s ease; }
     .toast-success { background: #10b981; }
     .toast-error { background: #ef4444; }
     .toast-info { background: #6366f1; }
@@ -80,8 +101,30 @@
     .tag-input input { flex: 1; }
     .tag-input button { background: #6366f1; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
     
-    .page-editor { max-width: 800px; }
-    .page-editor .form-group textarea { min-height: 400px; }
+    /* 颜色选择器 */
+    .color-picker-row { display: flex; gap: 10px; align-items: center; }
+    .color-picker-row input[type="color"] { width: 50px; height: 40px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+    .color-picker-row input[type="text"] { flex: 1; }
+    
+    /* 社交链接 */
+    .social-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .social-item select { width: 120px; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; }
+    .social-item input { flex: 1; }
+    .social-item button { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    
+    /* 配置区块 */
+    .config-section { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
+    .config-section h3 { font-size: 16px; margin-bottom: 16px; color: #1f2937; display: flex; align-items: center; gap: 8px; }
+    .config-section h3 .badge { font-size: 11px; background: #e5e7eb; color: #6b7280; padding: 2px 8px; border-radius: 10px; font-weight: 400; }
+    
+    .config-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .config-layout .full-width { grid-column: 1 / -1; }
+    
+    /* 预览 */
+    .preview-box { padding: 20px; border-radius: 12px; border: 1px solid #e5e7eb; margin-top: 10px; text-align: center; }
+    
+    /* 编辑器区域 */
+    .editor-container { max-width: 900px; }
   </style>
 </head>
 <body>
@@ -96,11 +139,39 @@
   <div class="container">
     <!-- 侧边栏 -->
     <div class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h2>📁 作品列表</h2>
-        <button onclick="showNewProjectForm()">+ 新建</button>
+      <div class="nav-tabs">
+        <button class="active" onclick="switchSidebarTab('projects', this)">📁 作品</button>
+        <button onclick="switchSidebarTab('config', this)">⚙️ 配置</button>
       </div>
-      <div id="projectList"></div>
+      <div id="sidebarProjects">
+        <div class="sidebar-header">
+          <h2>作品列表</h2>
+          <button onclick="showNewProjectForm()">+ 新建</button>
+        </div>
+        <div id="projectList"></div>
+      </div>
+      <div id="sidebarConfig" style="display:none;">
+        <div class="sidebar-header">
+          <h2>配置菜单</h2>
+        </div>
+        <div style="padding:15px 20px;">
+          <div class="form-group">
+            <label>快速跳转</label>
+            <select onchange="if(this.value)scrollToSection(this.value)" style="width:100%;">
+              <option value="">选择配置区域...</option>
+              <option value="section-basic">基本信息</option>
+              <option value="section-theme">主题颜色</option>
+              <option value="section-fonts">字体设置</option>
+              <option value="section-hero">首页 Hero</option>
+              <option value="section-about">关于我</option>
+              <option value="section-social">社交链接</option>
+              <option value="section-footer">页脚设置</option>
+              <option value="section-advanced">高级样式</option>
+            </select>
+          </div>
+          <button class="btn-save" onclick="saveSiteConfig()" style="width:100%;padding:12px;font-size:15px;">💾 保存所有配置</button>
+        </div>
+      </div>
     </div>
     
     <!-- 主内容 -->
@@ -120,451 +191,713 @@
   
   <div id="toastContainer"></div>
 
-  <script>
-    let currentProject = null;
-    let currentTab = 'editor';
-    let projects = [];
-    
-    // 加载作品列表
-    async function loadProjects() {
-      try {
-        const res = await fetch('/api/projects');
-        projects = await res.json();
-        renderProjectList();
-      } catch (err) {
-        showToast('加载失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 渲染作品列表
-    function renderProjectList() {
-      const list = document.getElementById('projectList');
-      list.innerHTML = projects.map(p => `
-        <div class="project-item ${currentProject && currentProject.id === p.id ? 'active' : ''}" onclick="selectProject('${p.id}')">
-          <div class="title">${p.title || '未命名作品'}</div>
-          <div class="meta">
-            <span>${p.category || '其他'}</span>
-            <span>${new Date(p.date).toLocaleDateString('zh-CN')}</span>
-            <span class="badge ${p.published ? 'badge-published' : 'badge-draft'}">${p.published ? '已发布' : '草稿'}</span>
+<script>
+// ====== API 基础配置 ======
+const API_BASE = '/api';
+
+async function api(path, options = {}) {
+  const url = `${API_BASE}${path}`;
+  const config = {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options
+  };
+  if (config.body && typeof config.body === 'object') config.body = JSON.stringify(config.body);
+  const res = await fetch(url, config);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || '请求失败');
+  }
+  return res.json();
+}
+
+// ====== Toast 通知 ======
+function toast(message, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ====== 侧边栏切换 ======
+function switchSidebarTab(tab, btn) {
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('sidebarProjects').style.display = tab === 'projects' ? '' : 'none';
+  document.getElementById('sidebarConfig').style.display = tab === 'config' ? '' : 'none';
+  if (tab === 'config') {
+    loadSiteConfig();
+  }
+}
+
+// ====== 数据状态 ======
+let projects = [];
+let currentProjectId = null;
+let siteConfig = {};
+let uploadedImages = [];
+
+// ====== 加载作品列表 ======
+async function loadProjects() {
+  try {
+    const data = await api('/projects');
+    projects = data;
+    renderProjectList();
+  } catch (e) {
+    toast('加载作品列表失败: ' + e.message, 'error');
+  }
+}
+
+function renderProjectList() {
+  const el = document.getElementById('projectList');
+  if (projects.length === 0) {
+    el.innerHTML = '<div style="padding:30px;text-align:center;color:#9ca3af;">暂无作品，点击"新建"创建</div>';
+    return;
+  }
+  el.innerHTML = projects.map(p => {
+    const isActive = p.id === currentProjectId;
+    const status = p.published ? 'published' : 'draft';
+    const statusLabel = p.published ? '已发布' : '草稿';
+    return `<div class="project-item ${isActive ? 'active' : ''}" onclick="selectProject('${p.id}')">
+      <div class="title">${escapeHtml(p.title || '未命名')}</div>
+      <div class="meta">
+        <span class="badge badge-${status}">${statusLabel}</span>
+        <span>${p.category || '未分类'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ====== 选择作品 ======
+async function selectProject(id) {
+  currentProjectId = id;
+  renderProjectList();
+  try {
+    const project = await api(`/projects/${id}`);
+    showProjectEditor(project);
+  } catch (e) {
+    toast('加载作品失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 新建作品 ======
+function showNewProjectForm() {
+  currentProjectId = null;
+  document.querySelectorAll('.project-item').forEach(el => el.classList.remove('active'));
+  const empty = { title: '', category: '', description: '', body: '', tags: [], cover: '', gallery: [], published: false };
+  showProjectEditor(empty, true);
+}
+
+// ====== 显示作品编辑器 ======
+function showProjectEditor(project, isNew = false) {
+  const mc = document.getElementById('mainContent');
+  document.getElementById('saveBar').style.display = 'flex';
+  
+  const tagsStr = (project.tags || []).join(', ');
+  
+  mc.innerHTML = `
+    <div class="editor-container">
+      <h2>${isNew ? '新建作品' : '编辑作品'}</h2>
+      
+      <div class="tab-bar">
+        <button class="active" onclick="switchEditorTab('basic', this)">基本信息</button>
+        <button onclick="switchEditorTab('content', this)">详细内容</button>
+        <button onclick="switchEditorTab('media', this)">封面与图片</button>
+      </div>
+      
+      <div id="editorTabBasic">
+        <div class="form-row">
+          <div class="form-group">
+            <label>作品标题</label>
+            <input id="editTitle" value="${escapeHtml(project.title || '')}" placeholder="输入作品标题" />
+          </div>
+          <div class="form-group">
+            <label>分类</label>
+            <input id="editCategory" value="${escapeHtml(project.category || '')}" placeholder="如: 网页设计 / 品牌 / UI" />
           </div>
         </div>
-      `).join('');
-    }
-    
-    // 选择作品
-    async function selectProject(id) {
-      try {
-        const res = await fetch(`/api/projects/${id}`);
-        currentProject = await res.json();
-        renderEditor();
-        document.getElementById('saveBar').style.display = 'flex';
-      } catch (err) {
-        showToast('加载失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 新建作品表单
-    function showNewProjectForm() {
-      const main = document.getElementById('mainContent');
-      main.innerHTML = `
-        <h2>📝 新建作品</h2>
         <div class="form-group">
-          <label>标识（英文，用作URL，例如 my-project）</label>
-          <input id="newId" placeholder="例如: my-project" />
+          <label>简短描述</label>
+          <textarea id="editDescription" placeholder="一句话描述这个作品">${escapeHtml(project.description || '')}</textarea>
         </div>
         <div class="form-group">
-          <label>作品名称</label>
-          <input id="newTitle" placeholder="输入作品名称" />
+          <label>标签</label>
+          <div class="tag-input">
+            <input id="editTagInput" placeholder="输入标签后点击添加" />
+            <button onclick="addTag()">添加</button>
+          </div>
+          <div class="tag-list" id="tagList"></div>
         </div>
         <div class="form-group">
-          <label>作品描述</label>
-          <textarea id="newDesc" placeholder="一句话描述这个作品"></textarea>
-        </div>
-        <div class="form-group">
-          <label>类别</label>
-          <select id="newCategory">
-            <option>UI设计</option>
-            <option>品牌设计</option>
-            <option>海报设计</option>
-            <option>图标设计</option>
-            <option>网页设计</option>
-            <option>其他</option>
+          <label>状态</label>
+          <select id="editPublished">
+            <option value="false"${project.published ? '' : ' selected'}>草稿</option>
+            <option value="true"${project.published ? ' selected' : ''}>已发布</option>
           </select>
         </div>
-        <button class="btn-save" onclick="createProject()" style="padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">创建作品</button>
-      `;
-      document.getElementById('saveBar').style.display = 'none';
-      currentProject = null;
-      renderProjectList();
-    }
-    
-    // 创建作品
-    async function createProject() {
-      const id = document.getElementById('newId').value.trim();
-      if (!id) { showToast('请输入标识', 'error'); return; }
+      </div>
       
-      try {
-        const res = await fetch('/api/projects', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id,
-            title: document.getElementById('newTitle').value,
-            description: document.getElementById('newDesc').value,
-            category: document.getElementById('newCategory').value,
-          }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          showToast('创建成功！', 'success');
-          loadProjects();
-          selectProject(id);
-        } else {
-          showToast(data.error || '创建失败', 'error');
-        }
-      } catch (err) {
-        showToast('创建失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 渲染编辑器
-    function renderEditor() {
-      if (!currentProject) return;
-      const main = document.getElementById('mainContent');
-      
-      main.innerHTML = `
-        <div class="tab-bar">
-          <button class="${currentTab === 'editor' ? 'active' : ''}" onclick="switchTab('editor')">✏️ 编辑</button>
-          <button class="${currentTab === 'pages' ? 'active' : ''}" onclick="switchTab('pages')">📄 页面</button>
+      <div id="editorTabContent" style="display:none;">
+        <div class="form-group">
+          <label>详细内容 (Markdown)</label>
+          <textarea id="editBody" class="body-editor" placeholder="使用 Markdown 格式编写详细内容...">${escapeHtml(project.body || '')}</textarea>
         </div>
-        
-        <div id="editorContent">
-          <h2>✏️ ${currentProject.title || '未命名作品'}</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>作品名称</label>
-              <input id="editTitle" value="${escapeHtml(currentProject.title || '')}" />
-            </div>
-            <div class="form-group">
-              <label>类别</label>
-              <select id="editCategory">
-                ${['UI设计', '品牌设计', '海报设计', '图标设计', '网页设计', '其他'].map(c => 
-                  `<option ${c === currentProject.category ? 'selected' : ''}>${c}</option>`
-                ).join('')}
-              </select>
-            </div>
+      </div>
+      
+      <div id="editorTabMedia" style="display:none;">
+        <div class="form-group">
+          <label>封面图片 URL</label>
+          <div class="form-row" style="gap:10px;">
+            <input id="editCover" value="${escapeHtml(project.cover || '')}" placeholder="输入图片 URL 或从下方选择" style="flex:1;" />
           </div>
-          
+        </div>
+        <div class="form-group">
+          <label>上传新图片</label>
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="icon">📁</div>
+            <p>点击或拖拽图片到此处上传</p>
+            <p style="font-size:12px;color:#9ca3af;">支持 JPG、PNG、GIF、WebP</p>
+            <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFileUpload(event)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>已上传图片 (点击选择)</label>
+          <div class="image-picker" id="imagePicker"></div>
+        </div>
+        <div class="form-group">
+          <label>作品图集</label>
+          <div id="galleryList"></div>
+          <button class="btn-add-gallery" onclick="addGalleryItem()">+ 添加图片</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // 初始化标签
+  window._currentTags = project.tags || [];
+  renderTags();
+  
+  // 初始化图集
+  window._currentGallery = project.gallery || [];
+  renderGallery();
+  
+  // 加载已上传图片
+  loadUploadedImages();
+  
+  // 上传区域拖拽支持
+  setupUploadArea();
+}
+
+// ====== 编辑器标签切换 ======
+function switchEditorTab(tab, btn) {
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('editorTabBasic').style.display = tab === 'basic' ? '' : 'none';
+  document.getElementById('editorTabContent').style.display = tab === 'content' ? '' : 'none';
+  document.getElementById('editorTabMedia').style.display = tab === 'media' ? '' : 'none';
+}
+
+// ====== 标签管理 ======
+function renderTags() {
+  const el = document.getElementById('tagList');
+  if (!el) return;
+  const tags = window._currentTags || [];
+  if (tags.length === 0) {
+    el.innerHTML = '<span style="color:#9ca3af;font-size:13px;">暂无标签</span>';
+    return;
+  }
+  el.innerHTML = tags.map(t => `<span class="tag">${escapeHtml(t)}<button onclick="removeTag('${escapeHtml(t)}')">×</button></span>`).join('');
+}
+
+function addTag() {
+  const input = document.getElementById('editTagInput');
+  const tag = input.value.trim();
+  if (!tag) return;
+  if (!window._currentTags) window._currentTags = [];
+  if (window._currentTags.includes(tag)) { toast('标签已存在', 'info'); return; }
+  window._currentTags.push(tag);
+  input.value = '';
+  renderTags();
+}
+
+function removeTag(tag) {
+  window._currentTags = (window._currentTags || []).filter(t => t !== tag);
+  renderTags();
+}
+
+// ====== 图集管理 ======
+function renderGallery() {
+  const el = document.getElementById('galleryList');
+  if (!el) return;
+  const gallery = window._currentGallery || [];
+  if (gallery.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:13px;margin-bottom:10px;">暂无图片</div>';
+    return;
+  }
+  el.innerHTML = gallery.map((img, i) => `
+    <div class="gallery-item">
+      <img class="gallery-preview" src="${escapeHtml(img)}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><rect fill=%22%23f0f0f0%22 width=%2260%22 height=%2260%22/></svg>'" onclick="window.open('${escapeHtml(img)}','_blank')" />
+      <input value="${escapeHtml(img)}" onchange="updateGalleryItem(${i}, this.value)" placeholder="图片 URL" />
+      <button onclick="removeGalleryItem(${i})">删除</button>
+    </div>
+  `).join('');
+}
+
+function addGalleryItem(url = '') {
+  if (!window._currentGallery) window._currentGallery = [];
+  window._currentGallery.push(url || '');
+  renderGallery();
+}
+
+function updateGalleryItem(index, url) {
+  if (window._currentGallery) window._currentGallery[index] = url;
+}
+
+function removeGalleryItem(index) {
+  if (window._currentGallery) window._currentGallery.splice(index, 1);
+  renderGallery();
+}
+
+// ====== 图片上传 ======
+function setupUploadArea() {
+  const area = document.getElementById('uploadArea');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+}
+
+async function handleFileUpload(event) {
+  const files = event.target.files;
+  if (files.length) handleFiles(files);
+  event.target.value = '';
+}
+
+async function handleFiles(files) {
+  for (const file of files) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('上传失败');
+      const data = await res.json();
+      toast('上传成功: ' + file.name, 'success');
+      loadUploadedImages();
+    } catch (e) {
+      toast('上传失败: ' + file.name, 'error');
+    }
+  }
+}
+
+async function loadUploadedImages() {
+  try {
+    const data = await api('/images');
+    uploadedImages = data.images || [];
+    renderImagePicker();
+  } catch (e) {
+    // 静默失败
+  }
+}
+
+function renderImagePicker() {
+  const el = document.getElementById('imagePicker');
+  if (!el) return;
+  if (uploadedImages.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:13px;text-align:center;padding:20px;">暂无已上传图片</div>';
+    return;
+  }
+  el.innerHTML = uploadedImages.map(url => `
+    <img src="${escapeHtml(url)}" onclick="selectImage('${escapeHtml(url)}')" title="点击选择此图片" />
+  `).join('');
+}
+
+function selectImage(url) {
+  // 设置到封面
+  document.getElementById('editCover').value = url;
+  toast('已选择图片', 'success');
+}
+
+// ====== 保存作品 ======
+async function saveProject() {
+  const title = document.getElementById('editTitle')?.value?.trim();
+  if (!title) { toast('请输入作品标题', 'error'); return; }
+  
+  const data = {
+    title,
+    category: document.getElementById('editCategory')?.value?.trim() || '',
+    description: document.getElementById('editDescription')?.value?.trim() || '',
+    body: document.getElementById('editBody')?.value || '',
+    tags: window._currentTags || [],
+    cover: document.getElementById('editCover')?.value?.trim() || '',
+    gallery: (window._currentGallery || []).filter(u => u.trim()),
+    published: document.getElementById('editPublished')?.value === 'true'
+  };
+  
+  try {
+    if (currentProjectId) {
+      await api(`/projects/${currentProjectId}`, { method: 'PUT', body: data });
+      toast('作品已更新', 'success');
+    } else {
+      const result = await api('/projects', { method: 'POST', body: data });
+      currentProjectId = result.id;
+      toast('作品已创建', 'success');
+    }
+    await loadProjects();
+  } catch (e) {
+    toast('保存失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 删除作品 ======
+async function deleteProject() {
+  if (!currentProjectId) return;
+  if (!confirm('确定要删除这个作品吗？此操作不可撤销！')) return;
+  try {
+    await api(`/projects/${currentProjectId}`, { method: 'DELETE' });
+    toast('作品已删除', 'success');
+    currentProjectId = null;
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <p>👈 选择一个作品进行编辑</p>
+        <p style="font-size: 14px;">或点击"新建"创建新作品</p>
+      </div>
+    `;
+    document.getElementById('saveBar').style.display = 'none';
+    await loadProjects();
+  } catch (e) {
+    toast('删除失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 站点配置 ======
+async function loadSiteConfig() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = '<div style="text-align:center;padding:40px;color:#9ca3af;">加载配置中...</div>';
+  
+  try {
+    const config = await api('/config');
+    siteConfig = config;
+    renderSiteConfig();
+  } catch (e) {
+    toast('加载配置失败: ' + e.message, 'error');
+    mc.innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">加载配置失败</div>';
+  }
+}
+
+function renderSiteConfig() {
+  const mc = document.getElementById('mainContent');
+  const c = siteConfig;
+  
+  mc.innerHTML = `
+    <div class="editor-container">
+      <h2>⚙️ 站点配置</h2>
+      
+      <!-- 基本信息 -->
+      <div class="config-section" id="section-basic">
+        <h3>📋 基本信息</h3>
+        <div class="config-layout">
           <div class="form-group">
-            <label>封面图URL</label>
-            <input id="editCover" value="${escapeHtml(currentProject.cover || '')}" placeholder="输入图片链接，或留空使用默认" />
+            <label>站点名称</label>
+            <input id="cfgSiteName" value="${escapeHtml(c.siteName || '')}" placeholder="如: 毛新宇的作品集" />
           </div>
-          
           <div class="form-group">
-            <label>作品描述</label>
-            <textarea id="editDescription">${escapeHtml(currentProject.description || '')}</textarea>
+            <label>站点副标题</label>
+            <input id="cfgSiteSubtitle" value="${escapeHtml(c.siteSubtitle || '')}" placeholder="如: 创意与技术并重" />
           </div>
-          
+          <div class="form-group full-width">
+            <label>站点描述 (SEO)</label>
+            <textarea id="cfgSiteDescription" placeholder="站点描述，用于搜索引擎">${escapeHtml(c.siteDescription || '')}</textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>关键词 (SEO，逗号分隔)</label>
+            <input id="cfgSiteKeywords" value="${escapeHtml(c.siteKeywords || '')}" placeholder="如: 作品集, 前端开发, UI设计" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- 主题颜色 -->
+      <div class="config-section" id="section-theme">
+        <h3>🎨 主题颜色</h3>
+        <div class="config-layout">
           <div class="form-group">
-            <label>标签</label>
-            <div class="tag-input">
-              <input id="tagInput" placeholder="输入标签按回车添加" onkeydown="if(event.key==='Enter')addTag()" />
-              <button onclick="addTag()">添加</button>
+            <label>主色</label>
+            <div class="color-picker-row">
+              <input type="color" id="cfgPrimaryColor" value="${c.primaryColor || '#6366f1'}" />
+              <input type="text" id="cfgPrimaryColorText" value="${c.primaryColor || '#6366f1'}" oninput="document.getElementById('cfgPrimaryColor').value=this.value" />
             </div>
-            <div class="tag-list" id="tagList">
-              ${(currentProject.tags || []).map(t => `<span class="tag">${t} <button onclick="removeTag('${t}')">×</button></span>`).join('')}
+          </div>
+          <div class="form-group">
+            <label>背景色</label>
+            <div class="color-picker-row">
+              <input type="color" id="cfgBgColor" value="${c.bgColor || '#ffffff'}" />
+              <input type="text" id="cfgBgColorText" value="${c.bgColor || '#ffffff'}" oninput="document.getElementById('cfgBgColor').value=this.value" />
             </div>
           </div>
-          
           <div class="form-group">
-            <label>作品图片画廊</label>
-            <div id="galleryList">
-              ${(currentProject.gallery || []).map((item, i) => `
-                <div class="gallery-item">
-                  <input value="${escapeHtml(item.image || '')}" placeholder="图片URL" onchange="updateGallery(${i}, 'image', this.value)" />
-                  <input value="${escapeHtml(item.caption || '')}" placeholder="说明（可选）" onchange="updateGallery(${i}, 'caption', this.value)" />
-                  <button onclick="removeGallery(${i})">×</button>
-                </div>
-              `).join('')}
+            <label>文字颜色</label>
+            <div class="color-picker-row">
+              <input type="color" id="cfgTextColor" value="${c.textColor || '#1f2937'}" />
+              <input type="text" id="cfgTextColorText" value="${c.textColor || '#1f2937'}" oninput="document.getElementById('cfgTextColor').value=this.value" />
             </div>
-            <button class="btn-add-gallery" onclick="addGalleryItem()">+ 添加图片</button>
           </div>
-          
           <div class="form-group">
-            <label>作品详情（支持 Markdown 格式）</label>
-            <textarea class="body-editor" id="editBody">${escapeHtml(currentProject.body || '')}</textarea>
+            <label>页脚背景色</label>
+            <div class="color-picker-row">
+              <input type="color" id="cfgFooterBg" value="${c.footerBg || '#1a1a2e'}" />
+              <input type="text" id="cfgFooterBgText" value="${c.footerBg || '#1a1a2e'}" oninput="document.getElementById('cfgFooterBg').value=this.value" />
+            </div>
           </div>
-          
-          <div class="form-group" style="display:flex;align-items:center;gap:10px;">
-            <label style="margin:0;">发布状态：</label>
-            <select id="editPublished" style="width:auto;">
-              <option value="true" ${currentProject.published ? 'selected' : ''}>已发布</option>
-              <option value="false" ${!currentProject.published ? 'selected' : ''}>草稿</option>
+        </div>
+      </div>
+      
+      <!-- 字体设置 -->
+      <div class="config-section" id="section-fonts">
+        <h3>🔤 字体设置</h3>
+        <div class="config-layout">
+          <div class="form-group">
+            <label>正文字体</label>
+            <select id="cfgBodyFont">
+              <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"${(c.bodyFont||'').includes('sans-serif') ? ' selected' : ''}>系统无衬线字体</option>
+              <option value="Georgia, 'Times New Roman', serif"${(c.bodyFont||'').includes('serif') ? ' selected' : ''}>衬线字体</option>
+              <option value="'Courier New', monospace"${(c.bodyFont||'').includes('monospace') ? ' selected' : ''}>等宽字体</option>
+              <option value="'Noto Sans SC', sans-serif"${(c.bodyFont||'').includes('Noto Sans') ? ' selected' : ''}>Noto Sans SC</option>
+              <option value="'Noto Serif SC', serif"${(c.bodyFont||'').includes('Noto Serif') ? ' selected' : ''}>Noto Serif SC</option>
+              <option value="'ZCOOL QingKe HuangYou', sans-serif"${(c.bodyFont||'').includes('ZCOOL') ? ' selected' : ''}>ZCOOL 快嘴</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>标题字体</label>
+            <select id="cfgHeadingFont">
+              <option value="inherit"${!c.headingFont || c.headingFont === 'inherit' ? ' selected' : ''}>继承正文字体</option>
+              <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"${c.headingFont === '-apple-system, BlinkMacSystemFont' ? ' selected' : ''}>系统无衬线字体</option>
+              <option value="'Noto Sans SC', sans-serif"${(c.headingFont||'').includes('Noto Sans') ? ' selected' : ''}>Noto Sans SC</option>
+              <option value="'ZCOOL QingKe HuangYou', sans-serif"${(c.headingFont||'').includes('ZCOOL') ? ' selected' : ''}>ZCOOL 快嘴</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>正文字号 (px)</label>
+            <input id="cfgBodyFontSize" type="number" value="${c.bodyFontSize || 16}" min="12" max="24" />
+          </div>
+          <div class="form-group">
+            <label>行高</label>
+            <input id="cfgLineHeight" type="number" value="${c.lineHeight || 1.8}" min="1" max="3" step="0.1" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Hero 区域 -->
+      <div class="config-section" id="section-hero">
+        <h3>🏠 首页 Hero</h3>
+        <div class="config-layout">
+          <div class="form-group">
+            <label>大标题</label>
+            <input id="cfgHeroTitle" value="${escapeHtml(c.heroTitle || '')}" placeholder="如: 你好，我是毛新宇" />
+          </div>
+          <div class="form-group">
+            <label>副标题</label>
+            <input id="cfgHeroSubtitle" value="${escapeHtml(c.heroSubtitle || '')}" placeholder="如: 全栈开发者 & 创意设计师" />
+          </div>
+          <div class="form-group full-width">
+            <label>简介文字</label>
+            <textarea id="cfgHeroDescription" placeholder="一段吸引人的介绍">${escapeHtml(c.heroDescription || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>按钮文字</label>
+            <input id="cfgHeroBtnText" value="${escapeHtml(c.heroBtnText || '查看我的作品')}" />
+          </div>
+          <div class="form-group">
+            <label>按钮链接</label>
+            <input id="cfgHeroBtnLink" value="${escapeHtml(c.heroBtnLink || '#projects')}" />
+          </div>
+          <div class="form-group full-width">
+            <label>背景图片 URL (可选)</label>
+            <input id="cfgHeroBgImage" value="${escapeHtml(c.heroBgImage || '')}" placeholder="留空使用纯色背景" />
+          </div>
+        </div>
+      </div>
+      
+      <!-- 关于我 -->
+      <div class="config-section" id="section-about">
+        <h3>👤 关于我</h3>
+        <div class="config-layout">
+          <div class="form-group full-width">
+            <label>关于我内容 (Markdown)</label>
+            <textarea id="cfgAboutContent" style="min-height:200px;">${escapeHtml(c.aboutContent || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>头像 URL</label>
+            <input id="cfgAvatarUrl" value="${escapeHtml(c.avatarUrl || '')}" placeholder="头像图片链接" />
+          </div>
+          <div class="form-group">
+            <label>显示头像</label>
+            <select id="cfgShowAvatar">
+              <option value="true"${c.showAvatar !== false ? ' selected' : ''}>显示</option>
+              <option value="false"${c.showAvatar === false ? ' selected' : ''}>隐藏</option>
             </select>
           </div>
         </div>
-        
-        <div id="pagesContent" style="display:none;">
-          <h2>📄 页面内容管理</h2>
-          
-          <div class="page-editor">
-            <h3 style="margin-bottom: 15px;">🏠 首页设置</h3>
-            <div id="homeEditor"></div>
-            
-            <h3 style="margin-top: 30px; margin-bottom: 15px;">👤 关于我</h3>
-            <div id="aboutEditor"></div>
+      </div>
+      
+      <!-- 社交链接 -->
+      <div class="config-section" id="section-social">
+        <h3>🔗 社交链接</h3>
+        <div id="socialList"></div>
+        <button class="btn-add-gallery" onclick="addSocialItem()">+ 添加社交链接</button>
+      </div>
+      
+      <!-- 页脚 -->
+      <div class="config-section" id="section-footer">
+        <h3>📌 页脚设置</h3>
+        <div class="config-layout">
+          <div class="form-group full-width">
+            <label>版权信息</label>
+            <input id="cfgCopyright" value="${escapeHtml(c.copyright || '© 2025 毛新宇. All rights reserved.')}" />
+          </div>
+          <div class="form-group full-width">
+            <label>ICP 备案号 (可选)</label>
+            <input id="cfgIcp" value="${escapeHtml(c.icp || '')}" placeholder="如: 京ICP备XXXXXXXX号" />
           </div>
         </div>
-      `;
+      </div>
       
-      loadPages();
-    }
-    
-    // 加载页面内容
-    async function loadPages() {
-      try {
-        const homeRes = await fetch('/api/pages/home');
-        const homeData = await homeRes.json();
-        const aboutRes = await fetch('/api/pages/about');
-        const aboutData = await aboutRes.json();
-        
-        const homeEditor = document.getElementById('homeEditor');
-        if (homeEditor) {
-          homeEditor.innerHTML = `
-            <div class="form-group">
-              <label>大标题</label>
-              <input id="homeTitle" value="${escapeHtml(homeData.data?.hero_title || '')}" />
-            </div>
-            <div class="form-group">
-              <label>副标题</label>
-              <textarea id="homeSubtitle">${escapeHtml(homeData.data?.hero_subtitle || '')}</textarea>
-            </div>
-            <div class="form-group">
-              <label>背景图URL</label>
-              <input id="homeImage" value="${escapeHtml(homeData.data?.hero_image || '')}" placeholder="可选" />
-            </div>
-            <button class="btn-save" onclick="saveHomePage()" style="padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">保存首页设置</button>
-          `;
-        }
-        
-        const aboutEditor = document.getElementById('aboutEditor');
-        if (aboutEditor) {
-          aboutEditor.innerHTML = `
-            <div class="form-group">
-              <label>标题</label>
-              <input id="aboutTitle" value="${escapeHtml(aboutData.data?.title || '关于我')}" />
-            </div>
-            <div class="form-group">
-              <label>头像URL</label>
-              <input id="aboutAvatar" value="${escapeHtml(aboutData.data?.avatar || '')}" placeholder="头像图片链接" />
-            </div>
-            <div class="form-group">
-              <label>个人简介（支持 Markdown）</label>
-              <textarea class="body-editor" id="aboutBio">${escapeHtml(aboutData.data?.bio || '')}</textarea>
-            </div>
-            <div class="form-group">
-              <label>联系邮箱</label>
-              <input id="aboutEmail" value="${escapeHtml(aboutData.data?.email || '')}" />
-            </div>
-            <button class="btn-save" onclick="saveAboutPage()" style="padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">保存关于我</button>
-          `;
-        }
-      } catch (err) {
-        console.error('加载页面失败:', err);
-      }
-    }
-    
-    // 切换标签
-    function switchTab(tab) {
-      currentTab = tab;
-      const editor = document.getElementById('editorContent');
-      const pages = document.getElementById('pagesContent');
-      if (editor) editor.style.display = tab === 'editor' ? 'block' : 'none';
-      if (pages) pages.style.display = tab === 'pages' ? 'block' : 'none';
-      renderEditor();
-    }
-    
-    // 保存作品
-    async function saveProject() {
-      if (!currentProject) return;
+      <!-- 高级样式 -->
+      <div class="config-section" id="section-advanced">
+        <h3>🎯 高级样式 <span class="badge">CSS 自定义</span></h3>
+        <div class="form-group">
+          <label>自定义 CSS</label>
+          <textarea id="cfgCustomCss" style="min-height:200px;font-family:'Courier New',monospace;" placeholder="在此输入自定义 CSS 样式...">${escapeHtml(c.customCss || '')}</textarea>
+        </div>
+        <div class="form-group">
+          <label>自定义 JS (head 标签内)</label>
+          <textarea id="cfgCustomHead" style="min-height:100px;font-family:'Courier New',monospace;" placeholder="在此添加自定义脚本或 meta 标签...">${escapeHtml(c.customHead || '')}</textarea>
+        </div>
+      </div>
       
-      const tags = Array.from(document.querySelectorAll('#tagList .tag')).map(el => el.textContent.replace('×', '').trim());
-      const galleryItems = [];
-      document.querySelectorAll('#galleryList .gallery-item').forEach(el => {
-        const inputs = el.querySelectorAll('input');
-        if (inputs[0] && inputs[0].value) {
-          galleryItems.push({ image: inputs[0].value, caption: inputs[1]?.value || '' });
-        }
-      });
-      
-      const data = {
-        title: document.getElementById('editTitle')?.value || '',
-        description: document.getElementById('editDescription')?.value || '',
-        category: document.getElementById('editCategory')?.value || '其他',
-        cover: document.getElementById('editCover')?.value || '',
-        tags,
-        published: document.getElementById('editPublished')?.value === 'true',
-        date: currentProject.date,
-        body: document.getElementById('editBody')?.value || '',
-        gallery: galleryItems,
-      };
-      
-      try {
-        const res = await fetch(`/api/projects/${currentProject.id}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        const result = await res.json();
-        if (result.success) {
-          showToast('✅ 保存成功！', 'success');
-          loadProjects();
-        } else {
-          showToast('保存失败: ' + (result.error || '未知错误'), 'error');
-        }
-      } catch (err) {
-        showToast('保存失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 删除作品
-    async function deleteProject() {
-      if (!currentProject) return;
-      if (!confirm(`确定要删除「${currentProject.title}」吗？`)) return;
-      
-      try {
-        const res = await fetch(`/api/projects/${currentProject.id}`, { method: 'DELETE' });
-        const result = await res.json();
-        if (result.success) {
-          showToast('已删除', 'info');
-          currentProject = null;
-          document.getElementById('saveBar').style.display = 'none';
-          document.getElementById('mainContent').innerHTML = `
-            <div class="empty-state">
-              <p>👈 选择一个作品进行编辑</p>
-              <p style="font-size: 14px;">或点击"新建"创建新作品</p>
-            </div>
-          `;
-          loadProjects();
-        }
-      } catch (err) {
-        showToast('删除失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 标签操作
-    function addTag() {
-      const input = document.getElementById('tagInput');
-      if (!input || !input.value.trim()) return;
-      const list = document.getElementById('tagList');
-      const tag = document.createElement('span');
-      tag.className = 'tag';
-      tag.innerHTML = `${input.value.trim()} <button onclick="this.parentElement.remove()">×</button>`;
-      list.appendChild(tag);
-      input.value = '';
-    }
-    
-    function removeTag(tag) {
-      // 通过 UI 移除
-    }
-    
-    // 画廊操作
-    let galleryIndex = (currentProject?.gallery || []).length;
-    function addGalleryItem() {
-      const list = document.getElementById('galleryList');
-      const div = document.createElement('div');
-      div.className = 'gallery-item';
-      div.innerHTML = `
-        <input placeholder="图片URL" />
-        <input placeholder="说明（可选）" />
-        <button onclick="this.parentElement.remove()">×</button>
-      `;
-      list.appendChild(div);
-    }
-    
-    function updateGallery(index, field, value) {
-      // 已通过 DOM 直接管理
-    }
-    
-    function removeGallery(index) {
-      const items = document.querySelectorAll('#galleryList .gallery-item');
-      if (items[index]) items[index].remove();
-    }
-    
-    // 保存首页
-    async function saveHomePage() {
-      try {
-        const res = await fetch('/api/pages/home', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            hero_title: document.getElementById('homeTitle')?.value || '',
-            hero_subtitle: document.getElementById('homeSubtitle')?.value || '',
-            hero_image: document.getElementById('homeImage')?.value || '',
-          }),
-        });
-        const data = await res.json();
-        if (data.success) showToast('✅ 首页设置已保存', 'success');
-      } catch (err) {
-        showToast('保存失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 保存关于我
-    async function saveAboutPage() {
-      try {
-        const res = await fetch('/api/pages/about', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: document.getElementById('aboutTitle')?.value || '关于我',
-            avatar: document.getElementById('aboutAvatar')?.value || '',
-            bio: document.getElementById('aboutBio')?.value || '',
-            email: document.getElementById('aboutEmail')?.value || '',
-            body: document.getElementById('aboutBio')?.value || '',
-          }),
-        });
-        const data = await res.json();
-        if (data.success) showToast('✅ 关于我已保存', 'success');
-      } catch (err) {
-        showToast('保存失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 部署
-    async function deploy() {
-      showToast('🚀 正在推送到 GitHub...', 'info');
-      try {
-        const res = await fetch('/api/deploy', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          showToast('✅ ' + data.message, 'success');
-        } else {
-          showToast('❌ ' + (data.error || '部署失败'), 'error');
-        }
-      } catch (err) {
-        showToast('❌ 部署失败: ' + err.message, 'error');
-      }
-    }
-    
-    // 工具函数
-    function escapeHtml(text) {
-      if (!text) return '';
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-    
-    function showToast(message, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast toast-${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-    
-    // 初始化
-    loadProjects();
-  </script>
+      <div style="height:80px;"></div>
+    </div>
+  `;
+  
+  // 渲染社交链接
+  window._currentSocial = c.socialLinks || [];
+  renderSocialList();
+}
+
+function renderSocialList() {
+  const el = document.getElementById('socialList');
+  if (!el) return;
+  const links = window._currentSocial || [];
+  if (links.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:13px;margin-bottom:10px;">暂无社交链接</div>';
+    return;
+  }
+  el.innerHTML = links.map((item, i) => `
+    <div class="social-item">
+      <select onchange="updateSocialItem(${i}, 'platform', this.value)">
+        <option value="github"${item.platform === 'github' ? ' selected' : ''}>GitHub</option>
+        <option value="linkedin"${item.platform === 'linkedin' ? ' selected' : ''}>LinkedIn</option>
+        <option value="twitter"${item.platform === 'twitter' ? ' selected' : ''}>Twitter/X</option>
+        <option value="weibo"${item.platform === 'weibo' ? ' selected' : ''}>微博</option>
+        <option value="zhihu"${item.platform === 'zhihu' ? ' selected' : ''}>知乎</option>
+        <option value="bilibili"${item.platform === 'bilibili' ? ' selected' : ''}>Bilibili</option>
+        <option value="email"${item.platform === 'email' ? ' selected' : ''}>Email</option>
+        <option value="website"${item.platform === 'website' ? ' selected' : ''}>网站</option>
+        <option value="other"${item.platform === 'other' ? ' selected' : ''}>其他</option>
+      </select>
+      <input value="${escapeHtml(item.url || '')}" placeholder="链接 URL" onchange="updateSocialItem(${i}, 'url', this.value)" />
+      <input value="${escapeHtml(item.label || '')}" placeholder="显示文字" onchange="updateSocialItem(${i}, 'label', this.value)" style="width:100px;" />
+      <button onclick="removeSocialItem(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function updateSocialItem(index, field, value) {
+  if (!window._currentSocial) window._currentSocial = [];
+  if (!window._currentSocial[index]) window._currentSocial[index] = { platform: 'github', url: '', label: '' };
+  window._currentSocial[index][field] = value;
+}
+
+function addSocialItem() {
+  if (!window._currentSocial) window._currentSocial = [];
+  window._currentSocial.push({ platform: 'github', url: '', label: '' });
+  renderSocialList();
+}
+
+function removeSocialItem(index) {
+  if (window._currentSocial) window._currentSocial.splice(index, 1);
+  renderSocialList();
+}
+
+// ====== 保存站点配置 ======
+async function saveSiteConfig() {
+  const config = {
+    siteName: document.getElementById('cfgSiteName')?.value || '',
+    siteSubtitle: document.getElementById('cfgSiteSubtitle')?.value || '',
+    siteDescription: document.getElementById('cfgSiteDescription')?.value || '',
+    siteKeywords: document.getElementById('cfgSiteKeywords')?.value || '',
+    primaryColor: document.getElementById('cfgPrimaryColorText')?.value || '#6366f1',
+    bgColor: document.getElementById('cfgBgColorText')?.value || '#ffffff',
+    textColor: document.getElementById('cfgTextColorText')?.value || '#1f2937',
+    footerBg: document.getElementById('cfgFooterBgText')?.value || '#1a1a2e',
+    bodyFont: document.getElementById('cfgBodyFont')?.value || '',
+    headingFont: document.getElementById('cfgHeadingFont')?.value || 'inherit',
+    bodyFontSize: parseInt(document.getElementById('cfgBodyFontSize')?.value) || 16,
+    lineHeight: parseFloat(document.getElementById('cfgLineHeight')?.value) || 1.8,
+    heroTitle: document.getElementById('cfgHeroTitle')?.value || '',
+    heroSubtitle: document.getElementById('cfgHeroSubtitle')?.value || '',
+    heroDescription: document.getElementById('cfgHeroDescription')?.value || '',
+    heroBtnText: document.getElementById('cfgHeroBtnText')?.value || '查看我的作品',
+    heroBtnLink: document.getElementById('cfgHeroBtnLink')?.value || '#projects',
+    heroBgImage: document.getElementById('cfgHeroBgImage')?.value || '',
+    aboutContent: document.getElementById('cfgAboutContent')?.value || '',
+    avatarUrl: document.getElementById('cfgAvatarUrl')?.value || '',
+    showAvatar: document.getElementById('cfgShowAvatar')?.value === 'true',
+    socialLinks: window._currentSocial || [],
+    copyright: document.getElementById('cfgCopyright')?.value || '',
+    icp: document.getElementById('cfgIcp')?.value || '',
+    customCss: document.getElementById('cfgCustomCss')?.value || '',
+    customHead: document.getElementById('cfgCustomHead')?.value || ''
+  };
+  
+  try {
+    await api('/config', { method: 'PUT', body: config });
+    siteConfig = config;
+    toast('配置已保存', 'success');
+  } catch (e) {
+    toast('保存配置失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 滚动到配置区域 ======
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ====== 部署 ======
+async function deploy() {
+  if (!confirm('确定要部署到网站吗？这将覆盖线上内容。')) return;
+  try {
+    const result = await api('/deploy', { method: 'POST' });
+    toast('部署成功！网站已更新', 'success');
+  } catch (e) {
+    toast('部署失败: ' + e.message, 'error');
+  }
+}
+
+// ====== 工具函数 ======
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+// ====== 初始化 ======
+document.addEventListener('DOMContentLoaded', () => {
+  loadProjects();
+});
+</script>
 </body>
 </html>
