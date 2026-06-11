@@ -18,21 +18,11 @@ introLines.forEach((line, li) => {
 
 <BaseLayout title={config.siteName || 'PORTFOLIO'} description={config.siteDescription}>
 
+  <!-- 虚化跟随光晕（全局） -->
+  <div id="bg-blob" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0.3;"></div>
+
   <!-- 开场全屏 -->
   <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease, visibility 0.6s ease;">
-
-    <!-- SVG 滤镜定义 -->
-    <svg style="position:absolute;width:0;height:0;">
-      <defs>
-        <filter id="goo">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur" />
-          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -10" result="goo" />
-        </filter>
-      </defs>
-    </svg>
-
-    <!-- 4 层跟随光标的光球（只在开屏页） -->
-    <canvas id="blob-canvas" style="position:fixed;top:0;left:0;z-index:3;pointer-events:none;filter:url(#goo);"></canvas>
 
     <!-- 标题 -->
     <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;position:relative;z-index:10;">
@@ -99,89 +89,23 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 4 层跟随光标的实心渐变光球（完整复刻，只在开屏页） ===
+  // === 虚化跟随光晕 ===
   (function() {
-    var canvas = document.getElementById('blob-canvas');
-    if (!canvas) return;
-    var intro = document.getElementById('intro-screen');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    var ctx = canvas.getContext('2d');
-
-    // 参考站精确参数
-    var sizes = [95, 125, 75, 62];
-    var innerSizes = [18, 34, 24, 18];
-    var opacities = [0.82, 0.54, 0.42, 0.32];
-    // GSAP duration 转换: factor = 1 - e^(-16/durationMs)
-    // fastDuration:0.08s -> 0.18, slowDuration:0.42s -> 0.037 -> 分层
-    var speeds = [0.18, 0.08, 0.06, 0.04];
-
-    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    var cx = [mx, mx, mx, mx], cy = [my, my, my, my];
-
+    var blob = document.getElementById('bg-blob');
+    if (!blob) return;
+    var mx = 0.5, my = 0.5;
     document.addEventListener('mousemove', function(e) {
-      mx = e.clientX;
-      my = e.clientY;
+      mx = e.clientX / window.innerWidth;
+      my = e.clientY / window.innerHeight;
     });
-
-    window.addEventListener('resize', function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-
-    function drawBlob(x, y, size, innerSize, opacity) {
-      // 外层渐变: radial-gradient(circle at 32% 28%, #ffffff 0%, #14d6f7 18%, #5227ff 48%, #fa007b 100%)
-      // 模拟 circle at 32% 28% 偏移
-      var ox = x - size * 0.18;
-      var oy = y - size * 0.22;
-      var outerGrad = ctx.createRadialGradient(ox, oy, 0, x, y, size);
-      outerGrad.addColorStop(0, '#ffffff');
-      outerGrad.addColorStop(0.18, '#14d6f7');
-      outerGrad.addColorStop(0.48, '#5227ff');
-      outerGrad.addColorStop(1, '#fa007b');
-
-      ctx.save();
-      ctx.globalAlpha = opacity;
-
-      // 阴影: rgba(250,0,123,0.46) blur 16
-      ctx.shadowColor = 'rgba(250,0,123,0.46)';
-      ctx.shadowBlur = 16;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-
-      // 外层实心圆
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fillStyle = outerGrad;
-      ctx.fill();
-
-      // 内层白核 innerColor: rgba(255,255,255,0.86)
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      var innerGrad = ctx.createRadialGradient(x, y, 0, x, y, innerSize);
-      innerGrad.addColorStop(0, 'rgba(255,255,255,0.86)');
-      innerGrad.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.beginPath();
-      ctx.arc(x, y, innerSize, 0, Math.PI * 2);
-      ctx.fillStyle = innerGrad;
-      ctx.fill();
-
-      ctx.restore();
+    function update() {
+      var cx = mx * 100, cy = my * 100;
+      // 双层光晕 — 青紫外层 + 粉内层
+      blob.innerHTML =
+        '<div style="position:absolute;top:'+(cy-35)+'%;left:'+(cx-35)+'%;width:70%;height:70%;background:radial-gradient(circle, rgba(20,214,247,0.12) 0%, rgba(82,39,255,0.08) 35%, transparent 70%);filter:blur(70px);border-radius:50%;transform:translate('+((mx-0.5)*15)+'px,'+((my-0.5)*15)+'px);mix-blend-mode:screen;"></div>' +
+        '<div style="position:absolute;top:'+(cy-28)+'%;left:'+(cx-28)+'%;width:56%;height:56%;background:radial-gradient(circle, rgba(250,0,123,0.1) 0%, rgba(82,39,255,0.06) 30%, transparent 65%);filter:blur(50px);border-radius:50%;transform:translate('+((mx-0.5)*25)+'px,'+((my-0.5)*25)+'px);mix-blend-mode:screen;"></div>';
+      requestAnimationFrame(update);
     }
-
-    function animate() {
-      if (intro && intro.style.visibility === 'hidden') return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (var i = 0; i < 4; i++) {
-        cx[i] += (mx - cx[i]) * speeds[i];
-        cy[i] += (my - cy[i]) * speeds[i];
-        drawBlob(cx[i], cy[i], sizes[i], innerSizes[i], opacities[i]);
-      }
-
-      requestAnimationFrame(animate);
-    }
-    animate();
+    update();
   })();
 </script>
