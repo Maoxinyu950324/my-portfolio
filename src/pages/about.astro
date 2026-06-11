@@ -1,9 +1,20 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadSiteConfig } from '../config';
+import { getCollection } from 'astro:content';
 
 const config = loadSiteConfig();
 const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : null;
+
+// 读取 about.md 页面内容作为补充
+const aboutPages = await getCollection('pages');
+const aboutPage = aboutPages.find(p => p.id === 'about');
+const aboutData = aboutPage?.data;
+
+// 合并社交链接：优先用 site-config.json，否则用 about.md
+const mergedSocialLinks = (config.socialLinks && config.socialLinks.length > 0)
+  ? config.socialLinks
+  : (aboutData?.social?.map(s => ({ platform: s.platform, url: s.url, label: s.platform })) || []);
 ---
 
 <BaseLayout title={`ABOUT - ${config.siteName}`}>
@@ -29,12 +40,14 @@ const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : nul
         <div class="contact-bio-text">
           {config.aboutContent ? (
             config.aboutContent.split('\n').filter(line => line.trim()).map(line => <p>{line}</p>)
+          ) : aboutData?.bio ? (
+            aboutData.bio.split('\n').filter(line => line.trim()).map(line => <p>{line}</p>)
           ) : (
             <p>品牌设计师 / 视觉设计师</p>
           )}
-          {config.socialLinks && config.socialLinks.length > 0 && (
+          {mergedSocialLinks.length > 0 && (
             <div class="contact-links">
-              {config.socialLinks.map((link) => (
+              {mergedSocialLinks.map((link) => (
                 <a href={link.url} target="_blank" rel="noopener noreferrer">
                   {link.label || link.platform}
                 </a>
@@ -88,22 +101,6 @@ const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : nul
   .side-text-right {
     right: 40px;
     transform: translate(50%, -50%) rotate(90deg);
-  }
-
-  /* 顶部 MAOXINYU */
-  .contact-top-title {
-    text-align: center;
-    margin-bottom: clamp(40px, 6vh, 72px);
-    width: 100%;
-  }
-  .contact-heading-en {
-    margin: 0;
-    color: #fff;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: clamp(48px, 7vw, 96px);
-    font-weight: 500;
-    line-height: 0.78;
-    letter-spacing: -0.07em;
   }
 
   .contact-card {
@@ -199,9 +196,6 @@ const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : nul
       overflow-y: auto;
       justify-content: center;
       min-height: 100svh;
-    }
-    .contact-heading-en {
-      font-size: clamp(42px, 16vw, 72px);
     }
     .contact-card {
       flex-direction: column;
