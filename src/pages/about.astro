@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const aboutContent = await getCollection('pages', (entry) => entry.slug === 'about');
+const about = aboutContent?.[0];
+---
+
+<BaseLayout title="关于我 - 设计作品集">
+  <section class="py-24 md:py-32">
+    <div class="mx-auto max-w-3xl px-6">
+      <div class="space-y-8">
+        <!-- Avatar -->
+        {
+          about?.data.avatar && (
+            <div class="flex justify-center">
+              <img
+                src={about.data.avatar}
+                alt={about.data.title}
+                class="h-32 w-32 rounded-full object-cover shadow-lg"
+              />
+            </div>
+          )
+        }
+
+        <!-- Title -->
+        <div class="text-center">
+          <h1 class="text-4xl font-bold tracking-tight md:text-5xl">
+            {about?.data.title || '关于我'}
+          </h1>
+        </div>
+
+        <!-- Bio -->
+        {
+          about && (
+            <div class="prose prose-lg prose-neutral mx-auto max-w-none">
+              <div set:html={about.rendered?.html} />
+            </div>
+          )
+        }
+
+        <!-- Social Links -->
+        {
+          about?.data.social && about.data.social.length > 0 && (
+            <div class="flex flex-wrap justify-center gap-4 pt-8">
+              {
+                about.data.social.map(
+                  (link: { platform: string; url: string }) => (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-100"
+                    >
+                      {link.platform}
+                    </a>
+                  )
+                )
+              }
+            </div>
+          )
+        }
+
+        <!-- Contact Email -->
+        {
+          about?.data.email && (
+            <div class="pt-8 text-center">
+              <a
+                href={`mailto:${about.data.email}`}
+                class="inline-flex items-center gap-2 text-brand-600 transition hover:text-brand-700"
+              >
+                <svg
+                  class="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                {about.data.email}
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .prose h1,
+  .prose h2,
+  .prose h3 {
+    @apply font-bold tracking-tight;
+  }
+  .prose p {
+    @apply leading-relaxed;
+  }
+</style>

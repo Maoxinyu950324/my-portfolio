@@ -1,0 +1,96 @@
+---
+const links = [
+  { href: '/', label: '首页' },
+  { href: '/projects', label: '作品' },
+  { href: '/about', label: '关于' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  class="fixed left-0 right-0 top-0 z-50 bg-neutral-50/80 backdrop-blur-md"
+>
+  <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+    <a href="/" class="text-lg font-semibold tracking-tight">
+      Portfolio<span class="text-brand-500">.</span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <ul class="hidden items-center gap-8 md:flex">
+      {
+        links.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                'text-sm font-medium transition-colors hover:text-brand-600',
+                { 'text-brand-600': currentPath === href },
+                { 'text-neutral-600': currentPath !== href },
+              ]}
+            >
+              {label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Mobile Menu Button -->
+    <button
+      id="menu-btn"
+      class="flex h-10 w-10 items-center justify-center rounded-lg transition hover:bg-neutral-100 md:hidden"
+      aria-label="菜单"
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden border-t border-neutral-100 md:hidden">
+    <ul class="mx-auto max-w-6xl space-y-1 px-6 py-4">
+      {
+        links.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                'block rounded-lg px-4 py-2 text-sm font-medium transition',
+                {
+                  'bg-brand-50 text-brand-700': currentPath === href,
+                },
+                {
+                  'text-neutral-600 hover:bg-neutral-100': currentPath !== href,
+                },
+              ]}
+            >
+              {label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>
+
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+</script>

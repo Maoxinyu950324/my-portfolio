@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectGrid from '../../components/ProjectGrid.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects', (entry) => entry.data.published === true);
+const projects = allProjects
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .map((p) => ({
+    title: p.data.title,
+    cover: p.data.cover || '',
+    description: p.data.description || '',
+    category: p.data.category || '其他',
+    slug: p.id,
+  }));
+---
+
+<BaseLayout title="全部作品 - 设计作品集">
+  <section class="py-16 pt-28 md:py-24">
+    <div class="mx-auto max-w-6xl px-6">
+      <h1 class="mb-12 text-4xl font-bold tracking-tight md:text-5xl">
+        全部作品
+      </h1>
+      <ProjectGrid projects={projects} />
+    </div>
+  </section>
+</BaseLayout>

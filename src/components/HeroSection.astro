@@ -1,0 +1,78 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+  image?: string;
+}
+
+const { title, subtitle, image } = Astro.props;
+---
+
+<section
+  class="relative flex min-h-[85vh] items-center overflow-hidden"
+>
+  <!-- Background Image (if provided) -->
+  {
+    image && (
+      <div class="absolute inset-0 z-0">
+        <img
+          src={image}
+          alt=""
+          class="h-full w-full object-cover opacity-20"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-neutral-50/60 via-neutral-50/80 to-neutral-50"
+        />
+      </div>
+    )
+  }
+
+  <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-24">
+    <div class="max-w-3xl space-y-6">
+      <h1
+        class="text-5xl font-bold leading-tight tracking-tight text-neutral-900 animate-fade-in md:text-7xl"
+      >
+        {title}
+      </h1>
+      <p
+        class="text-lg leading-relaxed text-neutral-600 animate-slide-up md:text-xl"
+        style="animation-delay: 0.2s; opacity: 0;"
+      >
+        {subtitle}
+      </p>
+      <div
+        class="flex gap-4 animate-slide-up"
+        style="animation-delay: 0.4s; opacity: 0;"
+      >
+        <a
+          href="/projects"
+          class="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-700"
+        >
+          查看作品
+          <svg
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </a>
+        <a
+          href="/about"
+          class="inline-flex items-center rounded-full border border-neutral-300 px-6 py-3 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-100"
+        >
+          了解更多
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative Element -->
+  <div class="pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-neutral-50 to-transparent" />
+</section>

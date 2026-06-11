@@ -1,0 +1,79 @@
+---
+import ProjectCard from './ProjectCard.astro';
+
+interface Project {
+  title: string;
+  cover: string;
+  description: string;
+  category: string;
+  slug: string;
+}
+
+interface Props {
+  projects: Project[];
+  limit?: number;
+}
+
+const { projects, limit } = Astro.props;
+const displayProjects = limit ? projects.slice(0, limit) : projects;
+---
+
+<section class="py-16 md:py-24">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="mb-12 flex items-end justify-between">
+      <h2 class="text-3xl font-bold tracking-tight md:text-4xl">
+        {limit ? '精选作品' : '全部作品'}
+      </h2>
+      {
+        limit && (
+          <a
+            href="/projects"
+            class="hidden text-sm font-medium text-brand-600 transition hover:text-brand-700 md:inline-flex md:items-center md:gap-1"
+          >
+            查看全部
+            <svg
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        )
+      }
+    </div>
+
+    {
+      displayProjects.length > 0 ? (
+        <div
+          class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {
+            displayProjects.map((project, index) => (
+              <ProjectCard
+                title={project.title}
+                cover={project.cover}
+                description={project.description}
+                category={project.category}
+                slug={project.slug}
+                index={index}
+              />
+            ))
+          }
+        </div>
+      ) : (
+        <div class="py-24 text-center">
+          <p class="text-lg text-neutral-400">
+            还没有作品，去后台添加你的第一个作品吧！
+          </p>
+        </div>
+      )
+    }
+  </div>
+</section>

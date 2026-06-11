@@ -1,0 +1,62 @@
+---
+interface Props {
+  title: string;
+  cover: string;
+  description: string;
+  category: string;
+  slug: string;
+  index?: number;
+}
+
+const { title, cover, description, category, slug, index = 0 } = Astro.props;
+const delay = `${index * 0.1}s`;
+---
+
+<a
+  href={`/projects/${slug}`}
+  class="group block animate-fade-in"
+  style={`animation-delay: ${delay}; opacity: 0;`}
+>
+  <div class="overflow-hidden rounded-2xl bg-neutral-100">
+    {
+      cover ? (
+        <div class="relative aspect-[4/3] overflow-hidden">
+          <img
+            src={cover}
+            alt={title}
+            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          />
+        </div>
+      ) : (
+        <div
+          class="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200"
+        >
+          <span class="text-4xl font-bold text-brand-400">
+            {title.charAt(0)}
+          </span>
+        </div>
+      )
+    }
+  </div>
+  <div class="mt-4 space-y-1.5">
+    <div class="flex items-center gap-2">
+      <span
+        class="inline-block rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600"
+      >
+        {category}
+      </span>
+    </div>
+    <h3
+      class="text-lg font-semibold text-neutral-900 transition-colors group-hover:text-brand-600"
+    >
+      {title}
+    </h3>
+    <p class="line-clamp-2 text-sm text-neutral-500">
+      {description}
+    </p>
+  </div>
+</a>
