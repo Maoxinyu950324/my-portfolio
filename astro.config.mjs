@@ -7,7 +7,4 @@ export default defineConfig({
   image: {
     domains: [],
   },
-  redirects: {
-    '/admin': '/admin/index.html',
-  },
 });
