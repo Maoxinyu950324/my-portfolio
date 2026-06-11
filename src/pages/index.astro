@@ -18,11 +18,11 @@ introLines.forEach((line, li) => {
 
 <BaseLayout title={config.siteName || 'PORTFOLIO'} description={config.siteDescription}>
 
-  <!-- 实心渐变球（无虚化 + 速度感应拉伸变形） -->
-  <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;"></div>
-
   <!-- 开场全屏 -->
   <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease, visibility 0.6s ease;">
+
+    <!-- 实心渐变球（仅在开屏页） -->
+    <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;"></div>
 
     <!-- 标题 -->
     <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;position:relative;z-index:10;">
@@ -89,10 +89,11 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 实心渐变球（速度感应拉伸变形） ===
+  // === 实心渐变球（速度感应拉伸变形，仅在开屏页） ===
   (function() {
     var blob = document.getElementById('cursor-blob');
-    if (!blob) return;
+    var intro = document.getElementById('intro-screen');
+    if (!blob || !intro) return;
     var mx = window.innerWidth / 2, my = window.innerHeight / 2;
     var cx = mx, cy = my;
     var prevX = mx, prevY = my;
@@ -108,7 +109,10 @@ introLines.forEach((line, li) => {
     window.addEventListener('pointerup', function() { pressScale = 1; });
 
     function animate() {
-      // 计算当前速度
+      // intro 消失后停止
+      if (intro.style.visibility === 'hidden') { blob.style.display = 'none'; return; }
+      blob.style.display = '';
+
       var dx = mx - prevX;
       var dy = my - prevY;
       vx += (dx - vx) * 0.3;
@@ -116,22 +120,16 @@ introLines.forEach((line, li) => {
       prevX = mx;
       prevY = my;
 
-      // 速度大小
       var speed = Math.sqrt(vx * vx + vy * vy);
-      // 速度方向角度
       var targetAngle = Math.atan2(vy, vx);
-
-      // 拉伸量：速度越快拉伸越大，最大 1.6
       var stretch = Math.min(1 + speed * 0.015, 1.6);
 
-      // 平滑过渡
       var targetSX = pressScale * stretch;
       var targetSY = pressScale / stretch;
       scaleX += (targetSX - scaleX) * 0.15;
       scaleY += (targetSY - scaleY) * 0.15;
       angle += (targetAngle - angle) * 0.15;
 
-      // 位置跟随
       cx += (mx - cx) * 0.14;
       cy += (my - cy) * 0.14;
 
