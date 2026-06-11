@@ -1,0 +1,70 @@
+backend:
+  name: github
+  repo: Maoxinyu950324/my-portfolio
+  branch: main
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "projects"
+    label: "作品项目"
+    label_singular: "项目"
+    folder: "content/projects"
+    create: true
+    slug: "{{slug}}"
+    preview_path: "projects/{{slug}}"
+    fields:
+      - { label: "项目名称", name: "title", widget: "string" }
+      - { label: "封面图", name: "cover", widget: "image", choose_url: true }
+      - { label: "项目描述", name: "description", widget: "text", hint: "一句话描述这个项目" }
+      - label: "项目类别"
+        name: "category"
+        widget: "select"
+        options: ["UI设计", "品牌设计", "海报设计", "图标设计", "网页设计", "其他"]
+      - { label: "标签", name: "tags", widget: "list", allow_add: true, hint: "输入关键词后按回车" }
+      - label: "作品图片画廊"
+        name: "gallery"
+        widget: "list"
+        summary: "{{fields.caption | '图片'}}"
+        fields:
+          - { label: "图片", name: "image", widget: "image", choose_url: true }
+          - { label: "图片说明", name: "caption", widget: "string", required: false }
+      - { label: "项目详情", name: "body", widget: "markdown", hint: "详细描述项目背景、过程和成果" }
+      - { label: "发布日期", name: "date", widget: "datetime", date_format: "YYYY-MM-DD", time_format: "HH:mm" }
+      - { label: "是否展示", name: "published", widget: "boolean", default: true }
+    sortable_fields: ["date", "title"]
+    view_filters:
+      - label: "已发布"
+        field: "published"
+        pattern: true
+      - label: "草稿"
+        field: "published"
+        pattern: false
+
+  - name: "pages"
+    label: "页面内容"
+    files:
+      - label: "关于我"
+        name: "about"
+        file: "content/pages/about.md"
+        fields:
+          - { label: "标题", name: "title", widget: "string", default: "关于我" }
+          - { label: "头像", name: "avatar", widget: "image", choose_url: true }
+          - { label: "个人简介", name: "bio", widget: "markdown" }
+          - { label: "联系邮箱", name: "email", widget: "string" }
+          - label: "社交链接"
+            name: "social"
+            widget: "list"
+            summary: "{{fields.platform}}"
+            fields:
+              - { label: "平台名称", name: "platform", widget: "string" }
+              - { label: "链接地址", name: "url", widget: "string" }
+
+      - label: "首页设置"
+        name: "home"
+        file: "content/pages/home.md"
+        fields:
+          - { label: "大标题", name: "hero_title", widget: "string", default: "Hi, I'm [你的名字]" }
+          - { label: "副标题", name: "hero_subtitle", widget: "text", default: "设计师 / 创造美好体验" }
+          - { label: "背景图", name: "hero_image", widget: "image", choose_url: true, required: false }
