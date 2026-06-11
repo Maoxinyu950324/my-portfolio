@@ -25,10 +25,10 @@ const { title = config.siteName, description = config.siteDescription } = Astro.
   </audio>
 </head>
 <body class="cursor-none" style="background:#000;color:#e5e5e5;overflow-x:hidden;">
-  <!-- 自定义光标（箭头） -->
-  <div id="custom-cursor" aria-hidden="true" style="position:fixed;top:0;left:0;z-index:2147483647;width:32px;height:32px;pointer-events:none;transform:translate3d(-50%,-50%,0);opacity:0;visibility:hidden;">
-    <svg viewBox="0 0 32 32" focusable="false" style="display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(20,214,247,0.5));">
-      <polygon points="10,4 28,16 16,18 12,30" fill="#fff" stroke="#14d6f7" stroke-width="1" stroke-linejoin="round"/>
+  <!-- 自定义光标（白色箭头 + difference 穿透效果） -->
+  <div id="custom-cursor" aria-hidden="true" style="position:fixed;top:0;left:0;z-index:2147483647;width:36px;height:36px;pointer-events:none;transform:translate3d(-50%,-50%,0);opacity:0;visibility:hidden;mix-blend-mode:difference;">
+    <svg viewBox="0 0 36 36" focusable="false" style="display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 8px rgba(255,255,255,0.3));transition:transform 0.15s ease;">
+      <polygon points="12,5 30,18 18,20 14,32" fill="#fff" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>
   </div>
 

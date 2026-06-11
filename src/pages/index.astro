@@ -39,10 +39,11 @@ introLines.forEach((line, li) => {
     <button id="intro-btn" type="button" class="shimmer-btn" style="margin-top:3.5rem;">
       <span>Start with sound</span>
     </button>
-
-    <!-- 跟随光标的光球 -->
-    <div id="cursor-blob"></div>
   </div>
+
+  <!-- 跟随光标的光球（分层，全局存在） -->
+  <div id="cursor-blob-1" class="cursor-blob-layer"></div>
+  <div id="cursor-blob-2" class="cursor-blob-layer"></div>
 
   <!-- 主内容 -->
   <div id="main-content" style="opacity:0;transform:translateY(20px);transition:opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;">
@@ -119,20 +120,25 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 跟随光标的液态光球 ===
+  // === 双层层跟随光标的光球 ===
   (function() {
-    var blob = document.getElementById('cursor-blob');
-    if (!blob) return;
+    var blob1 = document.getElementById('cursor-blob-1');
+    var blob2 = document.getElementById('cursor-blob-2');
+    if (!blob1 || !blob2) return;
     var bx = window.innerWidth / 2, by = window.innerHeight / 2;
-    var cx = bx, cy = by;
+    var cx1 = bx, cy1 = by, cx2 = bx, cy2 = by;
     document.addEventListener('mousemove', function(e) {
       bx = e.clientX;
       by = e.clientY;
     });
     function animate() {
-      cx += (bx - cx) * 0.08;
-      cy += (by - cy) * 0.08;
-      blob.style.transform = 'translate3d(' + (cx - 150) + 'px, ' + (cy - 150) + 'px, 0)';
+      cx1 += (bx - cx1) * 0.06;
+      cy1 += (by - cy1) * 0.06;
+      cx2 += (bx - cx2) * 0.1;
+      cy2 += (by - cy2) * 0.1;
+      var s1 = 220, s2 = 160;
+      blob1.style.transform = 'translate3d(' + (cx1 - s1/2) + 'px, ' + (cy1 - s1/2) + 'px, 0)';
+      blob2.style.transform = 'translate3d(' + (cx2 - s2/2) + 'px, ' + (cy2 - s2/2) + 'px, 0)';
       requestAnimationFrame(animate);
     }
     animate();
@@ -140,17 +146,29 @@ introLines.forEach((line, li) => {
 </script>
 
 <style>
-  /* 跟随光标的光球 */
-  #cursor-blob {
+  /* 双层层跟随光标光球 */
+  .cursor-blob-layer {
     position: fixed;
     top: 0; left: 0;
-    width: 300px;
-    height: 300px;
     pointer-events: none;
-    z-index: 10000;
+    z-index: 9997;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(20,214,247,0.25) 0%, rgba(82,39,255,0.2) 35%, rgba(250,0,123,0.1) 65%, transparent 100%);
-    filter: blur(60px);
     will-change: transform;
+  }
+  /* 外层大光晕 */
+  #cursor-blob-1 {
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.15) 0%, rgba(20,214,247,0.2) 25%, rgba(82,39,255,0.15) 55%, transparent 78%);
+    filter: blur(50px);
+    mix-blend-mode: screen;
+  }
+  /* 内层亮核 */
+  #cursor-blob-2 {
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.5) 0%, rgba(250,0,123,0.2) 30%, rgba(20,214,247,0.15) 60%, transparent 80%);
+    filter: blur(25px);
+    mix-blend-mode: screen;
   }
 </style>
