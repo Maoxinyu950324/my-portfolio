@@ -285,8 +285,9 @@ introLines.forEach((line, li) => {
       });
     });
 
-    // Initial: brand tab active
-    switchTab('brand');
+    // Initial: respect URL hash
+    var initHash = window.location.hash.replace('#', '');
+    switchTab(initHash === 'ui' ? 'ui' : 'brand');
 
     // Handle back/forward browser buttons
     window.addEventListener('hashchange', function() {

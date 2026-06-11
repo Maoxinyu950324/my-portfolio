@@ -3,8 +3,8 @@ import { loadSiteConfig } from '../config';
 const config = loadSiteConfig();
 const currentPath = Astro.url.pathname;
 const links = [
-  { href: '#brand', label: 'BRAND & VISUAL', tab: 'brand' },
-  { href: '#ui', label: 'UI/UX DESIGN', tab: 'ui' },
+  { href: '/#brand', label: 'BRAND & VISUAL', tab: 'brand' },
+  { href: '/#ui', label: 'UI/UX DESIGN', tab: 'ui' },
   { href: '/about', label: 'ABOUT ME' },
 ];
 ---
@@ -15,7 +15,7 @@ const links = [
   </a>
   <nav class="site-nav">
     {links.map(({ href, label, tab }) => (
-      <a href={href} class="nav-link" data-tab={tab || ''} style={`${currentPath === href ? 'color:#fff;' : ''}`}>
+      <a href={href} class="nav-link" {...(tab ? { 'data-tab': tab } : {})} style={`${currentPath === href ? 'color:#fff;' : ''}`}>
         {label}
       </a>
     ))}
