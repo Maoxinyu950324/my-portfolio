@@ -334,8 +334,14 @@ app.post('/api/deploy', async (req, res) => {
     const simpleGit = (await import('simple-git')).default;
     const git = simpleGit(PROJECT_ROOT);
     
+    // 先检查是否有变更
+    const status = await git.status();
+    if (status.files.length === 0) {
+      return res.json({ success: true, message: '没有需要部署的更新' });
+    }
+    
     await git.add('.');
-    await git.commit('CMS: 更新内容');
+    await git.commit(`CMS: 更新内容 (${new Date().toLocaleString('zh-CN')})`);
     await git.push('origin', 'main');
     
     res.json({ success: true, message: '已推送到 GitHub，Vercel 将自动部署！' });
