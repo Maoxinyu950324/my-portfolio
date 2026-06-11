@@ -1,4 +1,18 @@
 ---
-// Redirect /admin to /admin/index.html for Decap CMS
-return Astro.redirect('/admin/index.html');
+// Decap CMS 后台管理页面
+// 直接渲染 CMS 界面，而不是重定向到 /admin/index.html
 ---
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>作品管理后台</title>
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  </style>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+</head>
+<body>
+</body>
+</html>

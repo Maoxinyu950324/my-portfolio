@@ -3,8 +3,11 @@ import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
   integrations: [tailwind()],
-  site: 'https://my-portfolio-blush-five-pz0bdpc6fg.vercel.app',
+  site: 'https://maoxinyu.online',
   image: {
     domains: [],
+  },
+  redirects: {
+    '/admin': '/admin/index.html',
   },
 });
