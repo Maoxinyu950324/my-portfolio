@@ -5,99 +5,37 @@ import { loadSiteConfig } from '../config';
 const config = loadSiteConfig();
 ---
 
-<BaseLayout title={`关于我 - ${config.siteName}`}>
-  <section class="py-24 md:py-32">
-    <div class="mx-auto max-w-3xl px-6">
-      <div class="space-y-8">
-        <!-- Avatar -->
-        {
-          config.showAvatar && config.avatarUrl && (
-            <div class="flex justify-center">
-              <img
-                src={config.avatarUrl}
-                alt={config.siteName}
-                class="h-32 w-32 rounded-full object-cover shadow-lg"
-              />
-            </div>
-          )
-        }
+<BaseLayout title={`ABOUT - ${config.siteName}`}>
+  <section style="padding:120px 24px 80px;max-width:700px;margin:0 auto;">
+    {config.showAvatar && config.avatarUrl && (
+      <img src={config.avatarUrl} alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:40px;" />
+    )}
 
-        <!-- Title -->
-        <div class="text-center">
-          <h1 class="text-4xl font-bold tracking-tight md:text-5xl">
-            关于我
-          </h1>
-        </div>
+    <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;color:#fff;margin-bottom:32px;letter-spacing:-0.02em;">
+      ABOUT
+    </h1>
 
-        <!-- Bio -->
-        {
-          config.aboutContent && (
-            <div class="prose prose-lg prose-neutral mx-auto max-w-none">
-              <p>{config.aboutContent}</p>
-            </div>
-          )
-        }
-
-        <!-- Social Links -->
-        {
-          config.socialLinks && config.socialLinks.length > 0 && (
-            <div class="flex flex-wrap justify-center gap-4 pt-8">
-              {
-                config.socialLinks.map(
-                  (link) => (
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-100"
-                    >
-                      {link.label || link.platform}
-                    </a>
-                  )
-                )
-              }
-            </div>
-          )
-        }
-
-        <!-- Contact Email -->
-        {
-          config.socialLinks.filter(l => l.platform === 'email').map(link => (
-            <div class="pt-8 text-center">
-              <a
-                href={`mailto:${link.url}`}
-                class="inline-flex items-center gap-2 text-brand-600 transition hover:text-brand-700"
-              >
-                <svg
-                  class="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                {link.url}
-              </a>
-            </div>
-          ))
-        }
+    {config.aboutContent && (
+      <div style="color:#aaa;line-height:1.8;font-size:0.9rem;white-space:pre-wrap;margin-bottom:48px;">
+        {config.aboutContent}
       </div>
-    </div>
+    )}
+
+    {config.socialLinks && config.socialLinks.length > 0 && (
+      <div style="display:flex;flex-wrap:wrap;gap:16px;">
+        {config.socialLinks.map((link) => (
+          <a
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style="padding:8px 20px;border:1px solid #333;font-size:0.75rem;color:#888;letter-spacing:0.05em;transition:all 0.3s;"
+            onmouseenter="this.style.borderColor='#fff';this.style.color='#fff'"
+            onmouseleave="this.style.borderColor='#333';this.style.color='#888'"
+          >
+            {link.label || link.platform}
+          </a>
+        ))}
+      </div>
+    )}
   </section>
 </BaseLayout>
-
-<style is:global>
-  .prose h1,
-  .prose h2,
-  .prose h3 {
-    @apply font-bold tracking-tight;
-  }
-  .prose p {
-    @apply leading-relaxed;
-  }
-</style>

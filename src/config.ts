@@ -33,29 +33,29 @@ interface SiteConfig {
 const configPath = resolve(process.cwd(), 'site-config.json');
 
 const defaults: SiteConfig = {
-  siteName: '设计作品集',
+  siteName: 'PORTFOLIO',
   siteSubtitle: '',
-  siteDescription: '个人设计作品集，展示UI设计、平面设计等创意作品',
-  siteKeywords: '设计,作品集,UI设计',
-  primaryColor: '#6366f1',
-  bgColor: '#ffffff',
-  textColor: '#1f2937',
-  footerBg: '#1a1a2e',
+  siteDescription: 'Design Portfolio',
+  siteKeywords: 'design, portfolio, brand',
+  primaryColor: '#999999',
+  bgColor: '#141414',
+  textColor: '#e5e5e5',
+  footerBg: '#141414',
   bodyFont: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   headingFont: 'inherit',
   bodyFontSize: 16,
   lineHeight: 1.8,
-  heroTitle: "Hi, I'm Designer",
-  heroSubtitle: '用设计创造价值',
+  heroTitle: 'PORTFOLIO',
+  heroSubtitle: '',
   heroDescription: '',
-  heroBtnText: '查看我的作品',
-  heroBtnLink: '/projects',
+  heroBtnText: 'VIEW WORKS',
+  heroBtnLink: '/#works',
   heroBgImage: '',
   aboutContent: '',
   avatarUrl: '',
-  showAvatar: true,
+  showAvatar: false,
   socialLinks: [],
-  copyright: `© ${new Date().getFullYear()} 设计作品集. All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()}`,
   icp: '',
   customCss: '',
   customHead: '',
@@ -76,14 +76,12 @@ export function loadSiteConfig(): SiteConfig {
   return cached;
 }
 
-/** 把 hex 颜色转成 RGB 分量，用于生成 CSS 变量色阶 */
 export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const m = hex.replace('#', '').match(/^([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
   if (!m) return null;
   return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
 }
 
-/** 生成品牌色 CSS 变量 */
 export function generateColorVars(hex: string): string {
   const rgb = hexToRgb(hex);
   if (!rgb) return '';

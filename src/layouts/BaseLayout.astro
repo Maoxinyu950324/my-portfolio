@@ -8,76 +8,27 @@ interface Props {
 }
 
 const config = loadSiteConfig();
-
-const {
-  title = config.siteName,
-  description = config.siteDescription || '个人设计作品集',
-} = Astro.props;
+const { title = config.siteName, description = config.siteDescription } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="zh-CN" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <meta name="keywords" content={config.siteKeywords} />
-    <meta name="robots" content="index, follow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>{title}</title>
-    <!-- 站点自定义 head 内容 -->
-    {config.customHead && <Fragment set:html={config.customHead} />}
-  </head>
-  <body
-    class="min-h-screen bg-neutral-50 text-neutral-900 antialiased selection:bg-brand-200 selection:text-brand-900"
-    style={`font-family: ${config.bodyFont}; font-size: ${config.bodyFontSize}px; line-height: ${config.lineHeight};`}
-  >
-    <Navigation />
-    <main>
-      <slot />
-    </main>
-    <footer class="border-t border-neutral-200 py-12">
-      <div class="mx-auto max-w-6xl px-6">
-        <div
-          class="flex flex-col items-center justify-between gap-4 md:flex-row"
-        >
-          <p class="text-sm text-neutral-500">
-            {config.copyright}
-          </p>
-          {
-            config.icp && (
-              <p class="text-sm text-neutral-500">
-                <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">{config.icp}</a>
-              </p>
-            )
-          }
-          <div class="flex gap-6">
-            {
-              config.socialLinks.map((link) => {
-                const prefix = link.platform === 'email' ? 'mailto:' : '';
-                return (
-                  <a
-                    href={prefix + link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-sm text-neutral-500 transition hover:text-neutral-900"
-                  >
-                    {link.label || link.platform}
-                  </a>
-                );
-              })
-            }
-          </div>
-        </div>
-      </div>
-    </footer>
-  </body>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="keywords" content={config.siteKeywords} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <title>{title}</title>
+  {config.customHead && <Fragment set:html={config.customHead} />}
+</head>
+<body style="background:#141414;color:#e5e5e5;overflow-x:hidden;">
+  <Navigation />
+  <slot />
+</body>
 </html>
 
 <style is:global>
@@ -90,9 +41,7 @@ const {
     --color-bg: {config.bgColor};
     --color-text: {config.textColor};
     --font-sans: {config.bodyFont};
-    --font-display: {config.headingFont === 'inherit' ? config.bodyFont : config.headingFont};
   }
 </style>
 
-<!-- 自定义 CSS -->
 {config.customCss && <style is:global set:html={config.customCss} />}

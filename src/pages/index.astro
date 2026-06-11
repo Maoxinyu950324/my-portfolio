@@ -1,29 +1,88 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HeroSection from '../components/HeroSection.astro';
-import ProjectGrid from '../components/ProjectGrid.astro';
 import { getCollection } from 'astro:content';
 import { loadSiteConfig } from '../config';
 
 const config = loadSiteConfig();
-
-const allProjects = await getCollection('projects', (entry) => entry.data.published === true);
+const allProjects = await getCollection('projects', (e) => e.data.published === true);
 const projects = allProjects
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
-  .map((p) => ({
+  .map((p, i) => ({
     title: p.data.title,
     cover: p.data.cover || '',
-    description: p.data.description || '',
-    category: p.data.category || '其他',
+    category: p.data.category || '',
     slug: p.id,
+    num: i + 1,
   }));
+
+// 把标题拆成逐字数组，用于开场动画
+const titleLines = [
+  config.siteName || 'My Portfolio',
+];
+const words = titleLines[0].split(' ');
 ---
 
-<BaseLayout title={`${config.siteName} - 首页`} description={config.siteDescription}>
-  <HeroSection
-    title={config.heroTitle || "Hi, I'm Designer"}
-    subtitle={config.heroSubtitle || '用设计创造价值'}
-    image={config.heroBgImage || undefined}
-  />
-  <ProjectGrid projects={projects} limit={6} />
+<BaseLayout title={config.siteName} description={config.siteDescription}>
+  <!-- 开场全屏动画 -->
+  <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#141414;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s ease, visibility 0.8s ease;">
+    <h1 style="font-size:clamp(2rem, 8vw, 6rem);font-weight:900;color:#fff;letter-spacing:0.02em;text-align:center;line-height:1.2;">
+      {words.map((word, wi) => (
+        <span style="display:inline-block;margin:0 0.15em;">
+          {word.split('').map((char, ci) => (
+            <span class="animate-letter" style={`animation-delay:${(wi * word.length + ci) * 0.08 + 0.3}s`}>
+              {char}
+            </span>
+          ))}
+        </span>
+      ))}
+    </h1>
+    <button id="intro-btn" style="margin-top:3rem;padding:12px 40px;border:1px solid rgba(255,255,255,0.3);background:transparent;color:#999;font-size:0.85rem;cursor:pointer;letter-spacing:0.1em;transition:all 0.3s;opacity:0;animation:fadeIn 0.8s ease-out forwards;animation-delay:3s;" onmouseenter="this.style.borderColor='#fff';this.style.color='#fff'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.3)';this.style.color='#999'">
+      ENTER
+    </button>
+  </div>
+
+  <!-- 主内容（初始隐藏，点击 ENTER 后显示）-->
+  <div id="main-content" style="opacity:0;transform:translateY(20px);transition:opacity 0.8s ease, transform 0.8s ease;">
+    <div class="masonry-grid" style="padding:4px;">
+      {projects.map((p) => (
+        <a href={`/projects/${p.slug}`} class="masonry-item">
+          {p.cover ? (
+            <img src={p.cover} alt={p.title} loading="lazy" />
+          ) : (
+            <div style="aspect-ratio:3/4;background:#2a2a2a;display:flex;align-items:center;justify-content:center;color:#555;font-size:2rem;">
+              {p.title[0]}
+            </div>
+          )}
+          <div class="overlay">
+            <span class="num">{p.num}</span>
+            <span class="tt">{p.title}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+    <div style="padding:4rem 0;text-align:center;color:#555;font-size:0.8rem;">
+      {config.copyright}
+    </div>
+  </div>
 </BaseLayout>
+
+<script>
+  const btn = document.getElementById('intro-btn');
+  const intro = document.getElementById('intro-screen');
+  const main = document.getElementById('main-content');
+  if (btn && intro && main) {
+    btn.addEventListener('click', () => {
+      intro.style.opacity = '0';
+      intro.style.visibility = 'hidden';
+      main.style.opacity = '1';
+      main.style.transform = 'translateY(0)';
+      document.body.style.overflow = '';
+    });
+  }
+  // 也允许按任意键进入
+  document.addEventListener('keydown', (e) => {
+    if (intro && intro.style.visibility !== 'hidden') {
+      btn?.click();
+    }
+  });
+</script>
