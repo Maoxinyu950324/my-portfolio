@@ -18,8 +18,8 @@ introLines.forEach((line, li) => {
 
 <BaseLayout title={config.siteName || 'PORTFOLIO'} description={config.siteDescription}>
 
-  <!-- 蓝紫渐变实心球（follow cursor, mix-blend-mode:difference） -->
-  <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;filter:blur(4px);"></div>
+  <!-- 实心渐变球（无虚化 + 速度感应拉伸变形） -->
+  <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;"></div>
 
   <!-- 开场全屏 -->
   <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease, visibility 0.6s ease;">
@@ -89,23 +89,57 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 蓝紫渐变实心球跟随光标（mix-blend-mode:difference 反转） ===
+  // === 实心渐变球（速度感应拉伸变形） ===
   (function() {
     var blob = document.getElementById('cursor-blob');
     if (!blob) return;
     var mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    var cx = mx, cy = my, scale = 1;
+    var cx = mx, cy = my;
+    var prevX = mx, prevY = my;
+    var vx = 0, vy = 0;
+    var scaleX = 1, scaleY = 1, angle = 0;
+    var pressScale = 1;
+
     document.addEventListener('mousemove', function(e) {
       mx = e.clientX;
       my = e.clientY;
     });
-    // 鼠标按下时略微收缩
-    window.addEventListener('pointerdown', function() { scale = 0.75; });
-    window.addEventListener('pointerup', function() { scale = 1; });
+    window.addEventListener('pointerdown', function() { pressScale = 0.8; });
+    window.addEventListener('pointerup', function() { pressScale = 1; });
+
     function animate() {
-      cx += (mx - cx) * 0.12;
-      cy += (my - cy) * 0.12;
-      blob.style.transform = 'translate3d(' + (cx - 90) + 'px, ' + (cy - 90) + 'px, 0) scale(' + scale + ')';
+      // 计算当前速度
+      var dx = mx - prevX;
+      var dy = my - prevY;
+      vx += (dx - vx) * 0.3;
+      vy += (dy - vy) * 0.3;
+      prevX = mx;
+      prevY = my;
+
+      // 速度大小
+      var speed = Math.sqrt(vx * vx + vy * vy);
+      // 速度方向角度
+      var targetAngle = Math.atan2(vy, vx);
+
+      // 拉伸量：速度越快拉伸越大，最大 1.6
+      var stretch = Math.min(1 + speed * 0.015, 1.6);
+
+      // 平滑过渡
+      var targetSX = pressScale * stretch;
+      var targetSY = pressScale / stretch;
+      scaleX += (targetSX - scaleX) * 0.15;
+      scaleY += (targetSY - scaleY) * 0.15;
+      angle += (targetAngle - angle) * 0.15;
+
+      // 位置跟随
+      cx += (mx - cx) * 0.14;
+      cy += (my - cy) * 0.14;
+
+      blob.style.transform =
+        'translate3d(' + (cx - 70) + 'px, ' + (cy - 70) + 'px, 0) ' +
+        'rotate(' + (angle * 180 / Math.PI) + 'deg) ' +
+        'scaleX(' + scaleX + ') scaleY(' + scaleY + ')';
+
       requestAnimationFrame(animate);
     }
     animate();
