@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import FormatShowcase from '../components/FormatShowcase.astro';
 import { getCollection } from 'astro:content';
 import { loadSiteConfig } from '../config';
 
@@ -46,9 +47,8 @@ introLines.forEach((line, li) => {
   <!-- 主内容 -->
   <div id="main-content" style="opacity:0;transform:translateY(20px);transition:opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;">
 
-    <!-- 作品横向滚动画廊 -->
-    <section id="works" class="works-showcase">
-      <!-- 画廊轨道 -->
+    <!-- BRAND & VISUAL: 横向滚动画廊 -->
+    <section id="brand" class="works-showcase tab-panel" data-tab="brand">
       <div class="works-gallery" id="works-gallery">
         <div class="works-track" id="works-track">
           {projects.map((p, i) => (
@@ -71,12 +71,17 @@ introLines.forEach((line, li) => {
       </div>
     </section>
 
+    <!-- UI/UX DESIGN: 三列自动滚动瀑布流 -->
+    <div id="ui" class="tab-panel" data-tab="ui" style="display:none;">
+      <FormatShowcase projects={projects} />
+    </div>
+
     <div style="padding:6rem 0;text-align:center;color:#444;font-size:0.75rem;letter-spacing:0.05em;">
       {config.copyright}
     </div>
   </div>
 
-  <!-- 底部信息栏（main-content 之外，避免 transform 破坏 fixed 定位） -->
+  <!-- 底部信息栏 -->
   <div class="works-footer" id="works-footer" style="opacity:0;transition:opacity 0.4s ease 0.6s;">
     <span class="works-current-index" id="works-index">01</span>
     <p class="works-current-title" id="works-title">{projects[0]?.title || ''}</p>
@@ -249,5 +254,44 @@ introLines.forEach((line, li) => {
 
     // 初始激活第一张
     if (cards[0]) cards[0].classList.add('is-active');
+  })();
+
+  // === Tab 切换（BRAND / UI 独立页面） ===
+  (function() {
+    var tabs = document.querySelectorAll('.nav-link[data-tab]');
+    var panels = document.querySelectorAll('.tab-panel');
+    var footer = document.getElementById('works-footer');
+
+    function switchTab(tabName) {
+      panels.forEach(function(p) {
+        p.style.display = p.dataset.tab === tabName ? '' : 'none';
+      });
+      tabs.forEach(function(t) {
+        t.classList.toggle('is-current', t.dataset.tab === tabName);
+        t.style.color = t.dataset.tab === tabName ? '#fff' : '';
+      });
+      // Show footer only for brand tab
+      if (footer) {
+        footer.style.display = tabName === 'brand' ? '' : 'none';
+      }
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab(tab.dataset.tab);
+        // Update URL hash without scrolling
+        history.replaceState(null, '', '#' + tab.dataset.tab);
+      });
+    });
+
+    // Initial: brand tab active
+    switchTab('brand');
+
+    // Handle back/forward browser buttons
+    window.addEventListener('hashchange', function() {
+      var hash = window.location.hash.replace('#', '');
+      if (hash === 'brand' || hash === 'ui') switchTab(hash);
+    });
   })();
 </script>

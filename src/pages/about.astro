@@ -195,9 +195,10 @@ const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : nul
   @media (max-width: 760px) {
     .side-text { display: none; }
     .contact-showcase {
-      padding: calc(130px + env(safe-area-inset-top, 0px)) 18px calc(60px + env(safe-area-inset-bottom, 0px));
+      padding: calc(100px + env(safe-area-inset-top, 0px)) 18px calc(40px + env(safe-area-inset-bottom, 0px));
       overflow-y: auto;
-      justify-content: flex-start;
+      justify-content: center;
+      min-height: 100svh;
     }
     .contact-heading-en {
       font-size: clamp(42px, 16vw, 72px);
@@ -205,20 +206,27 @@ const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : nul
     .contact-card {
       flex-direction: column;
       text-align: center;
-      gap: clamp(24px, 5vh, 48px);
+      gap: clamp(16px, 3vh, 32px);
     }
     .contact-portrait-frame {
-      width: min(50vw, 260px);
+      width: min(64vw, 320px);
       border-radius: 999px;
       margin: 0 auto;
+      margin-right: -12px;
     }
     .contact-info-col {
       max-width: 100%;
+      text-align: center;
+      transform: none;
     }
     .contact-name-cn {
       font-size: clamp(22px, 9vw, 40px);
     }
     .contact-links {
+      justify-content: center;
+    }
+    .contact-qr-col {
+      display: flex;
       justify-content: center;
     }
     .contact-qr-img {
