@@ -1,5 +1,5 @@
 import express from 'express';
-import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join, dirname, extname } from 'path';
 import { fileURLToPath } from 'url';
 import matter from 'gray-matter';
@@ -212,7 +212,7 @@ app.delete('/api/projects/:id', (req, res) => {
   try {
     const filePath = join(PROJECT_ROOT, 'content/projects', `${req.params.id}.md`);
     if (existsSync(filePath)) {
-      writeFileSync(filePath, '', 'utf-8');
+      unlinkSync(filePath);
     }
     res.json({ success: true, message: '已删除' });
   } catch (err) {
