@@ -3,6 +3,8 @@ backend:
   repo: Maoxinyu950324/my-portfolio
   branch: main
   auth_scope: repo
+  # 使用 GitHub Personal Access Token 方式登录
+  # 登录时使用你的 GitHub Token 作为密码
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
