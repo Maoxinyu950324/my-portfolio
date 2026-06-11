@@ -3,9 +3,9 @@ import { loadSiteConfig } from '../config';
 const config = loadSiteConfig();
 const currentPath = Astro.url.pathname;
 const links = [
-  { href: '/#works', label: 'WORKS' },
-  { href: '/about', label: 'ABOUT' },
-  { href: 'mailto:your@email.com', label: 'CONTACT' },
+  { href: '/#works', label: 'UI/UX DESIGN' },
+  { href: '/#works', label: 'BRAND & VISUAL' },
+  { href: '/about', label: 'ABOUT ME' },
 ];
 ---
 
@@ -13,9 +13,9 @@ const links = [
   <a href="/" style="font-size:0.85rem;font-weight:600;color:#fff;letter-spacing:0.05em;">
     {config.siteName || 'PORTFOLIO'}
   </a>
-  <nav style="display:flex;gap:24px;">
+  <nav style="display:flex;gap:32px;">
     {links.map(({ href, label }) => (
-      <a href={href} class="nav-link" style={`font-size:0.75rem;font-weight:500;color:#999;letter-spacing:0.08em;${currentPath === href ? 'color:#fff;' : ''}`}>
+      <a href={href} class="nav-link" style={`font-family:'Helvetica Neue', Helvetica, sans-serif;font-size:1.05rem;font-weight:400;color:#999;letter-spacing:0.02em;${currentPath === href ? 'color:#fff;' : ''}`}>
         {label}
       </a>
     ))}
