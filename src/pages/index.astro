@@ -3,9 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroSection from '../components/HeroSection.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
 import { getCollection } from 'astro:content';
+import { loadSiteConfig } from '../config';
 
-const homeContent = await getCollection('pages', (entry) => entry.slug === 'home');
-const home = homeContent?.[0];
+const config = loadSiteConfig();
 
 const allProjects = await getCollection('projects', (entry) => entry.data.published === true);
 const projects = allProjects
@@ -19,11 +19,11 @@ const projects = allProjects
   }));
 ---
 
-<BaseLayout title="设计作品集 - 首页">
+<BaseLayout title={`${config.siteName} - 首页`} description={config.siteDescription}>
   <HeroSection
-    title={home?.data.hero_title || 'Hi, I\'m Designer'}
-    subtitle={home?.data.hero_subtitle || '用设计创造价值'}
-    image={home?.data.hero_image || undefined}
+    title={config.heroTitle || "Hi, I'm Designer"}
+    subtitle={config.heroSubtitle || '用设计创造价值'}
+    image={config.heroBgImage || undefined}
   />
   <ProjectGrid projects={projects} limit={6} />
 </BaseLayout>
