@@ -45,24 +45,42 @@ introLines.forEach((line, li) => {
 
   <!-- 主内容 -->
   <div id="main-content" style="opacity:0;transform:translateY(20px);transition:opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;">
-    <div id="works" class="masonry-grid" style="padding:4px;">
-      {projects.map((p) => (
-        <a href={'/projects/' + p.slug} class="masonry-item">
-          {p.cover ? (
-            <img src={p.cover} alt={p.title} loading="lazy" />
-          ) : (
-            <div style="aspect-ratio:3/4;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:2rem;font-weight:700;">{p.title[0]}</div>
-          )}
-          <div class="overlay">
-            <span class="num">{p.num}</span>
-            <span class="tt">{p.title}</span>
-          </div>
-        </a>
-      ))}
-    </div>
+
+    <!-- 作品横向滚动画廊 -->
+    <section id="works" class="works-showcase">
+      <!-- 画廊轨道 -->
+      <div class="works-gallery" id="works-gallery">
+        <div class="works-track" id="works-track">
+          {projects.map((p, i) => (
+            <a
+              href={'/projects/' + p.slug}
+              class="work-card"
+              data-index={i}
+              data-title={p.title}
+            >
+              <div class="work-image-mask">
+                {p.cover ? (
+                  <img src={p.cover} alt={p.title} loading={i < 8 ? 'eager' : 'lazy'} />
+                ) : (
+                  <div class="work-placeholder">{p.title[0]}</div>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
     <div style="padding:6rem 0;text-align:center;color:#444;font-size:0.75rem;letter-spacing:0.05em;">
       {config.copyright}
     </div>
+  </div>
+
+  <!-- 底部信息栏（main-content 之外，避免 transform 破坏 fixed 定位） -->
+  <div class="works-footer" id="works-footer" style="opacity:0;transition:opacity 0.4s ease 0.6s;">
+    <span class="works-current-index" id="works-index">01</span>
+    <p class="works-current-title" id="works-title">{projects[0]?.title || ''}</p>
+    <span class="works-total">{String(projects.length).padStart(2, '0')}</span>
   </div>
 </BaseLayout>
 
@@ -73,6 +91,7 @@ introLines.forEach((line, li) => {
     var btn = document.getElementById('intro-btn');
     var intro = document.getElementById('intro-screen');
     var main = document.getElementById('main-content');
+    var footer = document.getElementById('works-footer');
     function startExperience() {
       if (started) return;
       started = true;
@@ -82,6 +101,7 @@ introLines.forEach((line, li) => {
       setTimeout(function() { intro.style.visibility = 'hidden'; }, 600);
       main.style.opacity = '1';
       main.style.transform = 'translateY(0)';
+      if (footer) { footer.style.opacity = '1'; }
     }
     if (btn) btn.addEventListener('click', startExperience);
     document.addEventListener('keydown', function(e) {
@@ -141,5 +161,93 @@ introLines.forEach((line, li) => {
       requestAnimationFrame(animate);
     }
     animate();
+  })();
+
+  // === 横向滚动画廊 ===
+  (function() {
+    var gallery = document.getElementById('works-gallery');
+    var track = document.getElementById('works-track');
+    var cards = track ? track.querySelectorAll('.work-card') : null;
+    var indexEl = document.getElementById('works-index');
+    var titleEl = document.getElementById('works-title');
+
+    if (!gallery || !cards || cards.length === 0) return;
+
+    function getClosestCard() {
+      var isMobile = window.innerWidth <= 760;
+      var vpCenterX = window.innerWidth / 2;
+      var vpCenterY = window.innerHeight / 2;
+      var closest = null, closestIdx = 0, minDist = Infinity;
+      cards.forEach(function(card, i) {
+        var rect = card.getBoundingClientRect();
+        var cardCenterX = rect.left + rect.width / 2;
+        var cardCenterY = rect.top + rect.height / 2;
+        // 桌面端用水平距离，移动端用垂直距离
+        var dist = isMobile
+          ? Math.abs(cardCenterY - vpCenterY)
+          : Math.abs(cardCenterX - vpCenterX);
+        if (dist < minDist) { minDist = dist; closest = card; closestIdx = i; }
+      });
+      return { card: closest, index: closestIdx };
+    }
+
+    function formatIdx(n) { return String(n + 1).padStart(2, '0'); }
+
+    var isSnapping = false;
+    var scrollTimer;
+
+    function updateActive() {
+      var r = getClosestCard();
+      if (!r) return;
+      cards.forEach(function(c) { c.classList.remove('is-active'); });
+      r.card.classList.add('is-active');
+      if (indexEl) indexEl.textContent = formatIdx(r.index);
+      if (titleEl) titleEl.textContent = r.card.dataset.title || '';
+    }
+
+    function snapToClosest() {
+      if (isSnapping || window.innerWidth <= 760) return;
+      var r = getClosestCard();
+      if (!r) return;
+      var target = r.card.offsetLeft - gallery.offsetWidth / 2 + r.card.offsetWidth / 2;
+      isSnapping = true;
+      gallery.scrollTo({ left: target, behavior: 'smooth' });
+      setTimeout(function() { isSnapping = false; }, 350);
+    }
+
+    gallery.addEventListener('scroll', function() {
+      updateActive();
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(snapToClosest, 150);
+    }, { passive: true });
+
+    // 移动端垂直滚动时也更新序号
+    window.addEventListener('scroll', function() {
+      if (window.innerWidth <= 760) updateActive();
+    }, { passive: true });
+
+    window.addEventListener('resize', function() {
+      updateActive();
+      setTimeout(snapToClosest, 100);
+    }, { passive: true });
+
+    document.addEventListener('keydown', function(e) {
+      var r = getClosestCard();
+      if (!r) return;
+      var idx = r.index;
+      if (e.key === 'ArrowRight') idx = Math.min(r.index + 1, cards.length - 1);
+      else if (e.key === 'ArrowLeft') idx = Math.max(r.index - 1, 0);
+      else return;
+      var targetCard = cards[idx];
+      var targetScroll = targetCard.offsetLeft - gallery.offsetWidth / 2 + targetCard.offsetWidth / 2;
+      gallery.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      cards.forEach(function(c) { c.classList.remove('is-active'); });
+      targetCard.classList.add('is-active');
+      if (indexEl) indexEl.textContent = formatIdx(idx);
+      if (titleEl) titleEl.textContent = targetCard.dataset.title || '';
+    });
+
+    // 初始激活第一张
+    if (cards[0]) cards[0].classList.add('is-active');
   })();
 </script>

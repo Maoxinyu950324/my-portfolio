@@ -3,39 +3,227 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { loadSiteConfig } from '../config';
 
 const config = loadSiteConfig();
+const avatarImg = config.showAvatar && config.avatarUrl ? config.avatarUrl : null;
 ---
 
 <BaseLayout title={`ABOUT - ${config.siteName}`}>
-  <section style="padding:120px 24px 80px;max-width:700px;margin:0 auto;">
-    {config.showAvatar && config.avatarUrl && (
-      <img src={config.avatarUrl} alt="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin-bottom:40px;" />
-    )}
+  <section class="contact-showcase" id="contact">
+    <!-- 左侧竖排装饰文字 -->
+    <div class="side-text side-text-left">MAOXINYU DESIGN PORTFOLIO</div>
+    <!-- 右侧竖排装饰文字 -->
+    <div class="side-text side-text-right">MAOXINYU DESIGN PORTFOLIO</div>
 
-    <h1 style="font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;color:#fff;margin-bottom:32px;letter-spacing:-0.02em;">
-      ABOUT
-    </h1>
-
-    {config.aboutContent && (
-      <div style="color:#aaa;line-height:1.8;font-size:0.9rem;white-space:pre-wrap;margin-bottom:48px;">
-        {config.aboutContent}
+    <div class="contact-card">
+      <!-- 左侧：头像大图 -->
+      <div class="contact-portrait-col">
+        {avatarImg && (
+          <div class="contact-portrait-frame">
+            <img src={avatarImg} alt="" class="contact-portrait-img" />
+          </div>
+        )}
       </div>
-    )}
 
-    {config.socialLinks && config.socialLinks.length > 0 && (
-      <div style="display:flex;flex-wrap:wrap;gap:16px;">
-        {config.socialLinks.map((link) => (
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style="padding:8px 20px;border:1px solid #333;font-size:0.75rem;color:#888;letter-spacing:0.05em;transition:all 0.3s;"
-            onmouseenter="this.style.borderColor='#fff';this.style.color='#fff'"
-            onmouseleave="this.style.borderColor='#333';this.style.color='#888'"
-          >
-            {link.label || link.platform}
-          </a>
-        ))}
+      <!-- 中间：毛鑫宇 + 简介 -->
+      <div class="contact-info-col">
+        <p class="contact-name-cn">毛鑫宇</p>
+        <div class="contact-bio-text">
+          {config.aboutContent ? (
+            config.aboutContent.split('\n').filter(line => line.trim()).map(line => <p>{line}</p>)
+          ) : (
+            <p>品牌设计师 / 视觉设计师</p>
+          )}
+          {config.socialLinks && config.socialLinks.length > 0 && (
+            <div class="contact-links">
+              {config.socialLinks.map((link) => (
+                <a href={link.url} target="_blank" rel="noopener noreferrer">
+                  {link.label || link.platform}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+        <!-- 二维码在介绍文案下方 -->
+        <div class="contact-qr-col">
+          <img src="/qr-code.png" alt="QR Code" class="contact-qr-img" />
+        </div>
       </div>
-    )}
+    </div>
   </section>
 </BaseLayout>
+
+<style>
+  .contact-showcase {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(80px, 12vh, 120px) clamp(28px, 4.5vw, 86px);
+  }
+
+  /* 左右侧竖排装饰文字 */
+  .side-text {
+    position: fixed;
+    top: 50%;
+    z-index: 0;
+    color: rgba(255,255,255,0.12);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    transform-origin: center;
+    pointer-events: none;
+  }
+  .side-text-left {
+    left: 40px;
+    transform: translate(-50%, -50%) rotate(-90deg);
+  }
+  .side-text-right {
+    right: 40px;
+    transform: translate(50%, -50%) rotate(90deg);
+  }
+
+  /* 顶部 MAOXINYU */
+  .contact-top-title {
+    text-align: center;
+    margin-bottom: clamp(40px, 6vh, 72px);
+    width: 100%;
+  }
+  .contact-heading-en {
+    margin: 0;
+    color: #fff;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 500;
+    line-height: 0.78;
+    letter-spacing: -0.07em;
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(60px, 8vw, 140px);
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  /* 左侧：头像 */
+  .contact-portrait-col {
+    flex: 0 0 auto;
+  }
+  .contact-portrait-frame {
+    width: clamp(400px, 48vw, 720px);
+    aspect-ratio: 0.72;
+    overflow: hidden;
+    background: transparent;
+    border-radius: 999px;
+  }
+  .contact-portrait-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate3d(-5%, -6%, 0);
+  }
+
+  /* 中间：名字 毛鑫宇 + 简介 */
+  .contact-info-col {
+    flex: 0 0 auto;
+    max-width: 360px;
+    transform: translate(-36px, -36px);
+  }
+  .contact-name-cn {
+    margin: 0 0 clamp(10px, 2vh, 20px);
+    color: #fff;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: clamp(28px, 4vw, 56px);
+    font-weight: 900;
+    line-height: 0.92;
+  }
+  .contact-bio-text {
+    color: rgba(255,255,255,0.6);
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: clamp(12px, 1.1vw, 16px);
+    font-weight: 900;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+  .contact-bio-text p {
+    margin: 0;
+  }
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .contact-links a {
+    padding: 6px 16px;
+    border: 1px solid #333;
+    font-size: 0.7rem;
+    color: #888;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+  }
+  .contact-links a:hover {
+    border-color: #fff;
+    color: #fff;
+  }
+
+  /* 二维码（在简介下方） */
+  .contact-qr-col {
+    margin-top: clamp(20px, 3vh, 36px);
+  }
+  .contact-qr-img {
+    width: clamp(70px, 10vw, 110px);
+    height: clamp(70px, 10vw, 110px);
+    object-fit: contain;
+    opacity: 0.6;
+  }
+
+  /* 移动端 */
+  @media (max-width: 760px) {
+    .side-text { display: none; }
+    .contact-showcase {
+      padding: calc(130px + env(safe-area-inset-top, 0px)) 18px calc(60px + env(safe-area-inset-bottom, 0px));
+      overflow-y: auto;
+      justify-content: flex-start;
+    }
+    .contact-heading-en {
+      font-size: clamp(42px, 16vw, 72px);
+    }
+    .contact-card {
+      flex-direction: column;
+      text-align: center;
+      gap: clamp(24px, 5vh, 48px);
+    }
+    .contact-portrait-frame {
+      width: min(50vw, 260px);
+      border-radius: 999px;
+      margin: 0 auto;
+    }
+    .contact-info-col {
+      max-width: 100%;
+    }
+    .contact-name-cn {
+      font-size: clamp(22px, 9vw, 40px);
+    }
+    .contact-links {
+      justify-content: center;
+    }
+    .contact-qr-img {
+      width: 64px;
+      height: 64px;
+    }
+  }
+</style>
