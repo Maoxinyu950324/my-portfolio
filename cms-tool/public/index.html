@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>作品集管理后台</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    
+    .header { background: #1a1a2e; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 20px; font-weight: 600; }
+    .header .actions { display: flex; gap: 10px; }
+    .header .actions button { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-deploy { background: #10b981; color: white; }
+    .btn-deploy:hover { background: #059669; }
+    .btn-preview { background: #6366f1; color: white; }
+    .btn-preview:hover { background: #4f46e5; }
+    
+    .container { display: flex; height: calc(100vh - 70px); }
+    
+    .sidebar { width: 320px; background: white; border-right: 1px solid #e5e7eb; overflow-y: auto; flex-shrink: 0; }
+    .sidebar-header { padding: 15px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+    .sidebar-header h2 { font-size: 16px; }
+    .sidebar-header button { background: #6366f1; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .sidebar-header button:hover { background: #4f46e5; }
+    
+    .project-item { padding: 15px 20px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; }
+    .project-item:hover { background: #f9fafb; }
+    .project-item.active { background: #eef2ff; border-left: 3px solid #6366f1; }
+    .project-item .title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .project-item .meta { font-size: 12px; color: #9ca3af; display: flex; gap: 8px; }
+    .project-item .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    .badge-published { background: #d1fae5; color: #065f46; }
+    .badge-draft { background: #fef3c7; color: #92400e; }
+    
+    .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+    .main-content h2 { font-size: 22px; margin-bottom: 20px; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #374151; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .form-group textarea.body-editor { min-height: 300px; font-family: 'Courier New', monospace; }
+    .form-row { display: flex; gap: 20px; }
+    .form-row .form-group { flex: 1; }
+    
+    .gallery-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+    .gallery-item input { flex: 1; }
+    .gallery-item button { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .btn-add-gallery { background: #e5e7eb; border: 1px dashed #9ca3af; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 13px; width: 100%; color: #6b7280; }
+    .btn-add-gallery:hover { background: #f3f4f6; }
+    
+    .save-bar { position: fixed; bottom: 0; left: 320px; right: 0; background: white; border-top: 1px solid #e5e7eb; padding: 15px 30px; display: flex; gap: 10px; justify-content: flex-end; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+    .save-bar button { padding: 10px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; }
+    .btn-save { background: #6366f1; color: white; }
+    .btn-save:hover { background: #4f46e5; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-delete:hover { background: #fecaca; }
+    
+    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 24px; border-radius: 8px; color: white; font-weight: 500; z-index: 1000; animation: slideIn 0.3s ease; }
+    .toast-success { background: #10b981; }
+    .toast-error { background: #ef4444; }
+    .toast-info { background: #6366f1; }
+    
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #9ca3af; }
+    .empty-state p { font-size: 16px; margin-bottom: 10px; }
+    
+    .tab-bar { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; }
+    .tab-bar button { padding: 10px 20px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .tab-bar button.active { color: #6366f1; border-bottom-color: #6366f1; }
+    
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .tag { display: inline-flex; align-items: center; gap: 4px; background: #eef2ff; color: #4338ca; padding: 4px 10px; border-radius: 12px; font-size: 12px; }
+    .tag button { background: none; border: none; cursor: pointer; color: #4338ca; font-size: 14px; padding: 0; margin-left: 2px; }
+    .tag-input { display: flex; gap: 6px; }
+    .tag-input input { flex: 1; }
+    .tag-input button { background: #6366f1; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    
+    .page-editor { max-width: 800px; }
+    .page-editor .form-group textarea { min-height: 400px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎨 作品集管理后台</h1>
+    <div class="actions">
+      <button class="btn-preview" onclick="window.open('https://maoxinyu.online', '_blank')">🔗 查看网站</button>
+      <button class="btn-deploy" onclick="deploy()">🚀 部署到网站</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>📁 作品列表</h2>
+        <button onclick="showNewProjectForm()">+ 新建</button>
+      </div>
+      <div id="projectList"></div>
+    </div>
+    
+    <!-- 主内容 -->
+    <div class="main-content" id="mainContent">
+      <div class="empty-state">
+        <p>👈 选择一个作品进行编辑</p>
+        <p style="font-size: 14px;">或点击"新建"创建新作品</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 保存栏 -->
+  <div class="save-bar" id="saveBar" style="display:none;">
+    <button class="btn-delete" onclick="deleteProject()">🗑️ 删除</button>
+    <button class="btn-save" onclick="saveProject()">💾 保存</button>
+  </div>
+  
+  <div id="toastContainer"></div>
+
+  <script>
+    let currentProject = null;
+    let currentTab = 'editor';
+    let projects = [];
+    
+    // 加载作品列表
+    async function loadProjects() {
+      try {
+        const res = await fetch('/api/projects');
+        projects = await res.json();
+        renderProjectList();
+      } catch (err) {
+        showToast('加载失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 渲染作品列表
+    function renderProjectList() {
+      const list = document.getElementById('projectList');
+      list.innerHTML = projects.map(p => `
+        <div class="project-item ${currentProject && currentProject.id === p.id ? 'active' : ''}" onclick="selectProject('${p.id}')">
+          <div class="title">${p.title || '未命名作品'}</div>
+          <div class="meta">
+            <span>${p.category || '其他'}</span>
+            <span>${new Date(p.date).toLocaleDateString('zh-CN')}</span>
+            <span class="badge ${p.published ? 'badge-published' : 'badge-draft'}">${p.published ? '已发布' : '草稿'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // 选择作品
+    async function selectProject(id) {
+      try {
+        const res = await fetch(`/api/projects/${id}`);
+        currentProject = await res.json();
+        renderEditor();
+        document.getElementById('saveBar').style.display = 'flex';
+      } catch (err) {
+        showToast('加载失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 新建作品表单
+    function showNewProjectForm() {
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <h2>📝 新建作品</h2>
+        <div class="form-group">
+          <label>标识（英文，用作URL，例如 my-project）</label>
+          <input id="newId" placeholder="例如: my-project" />
+        </div>
+        <div class="form-group">
+          <label>作品名称</label>
+          <input id="newTitle" placeholder="输入作品名称" />
+        </div>
+        <div class="form-group">
+          <label>作品描述</label>
+          <textarea id="newDesc" placeholder="一句话描述这个作品"></textarea>
+        </div>
+        <div class="form-group">
+          <label>类别</label>
+          <select id="newCategory">
+            <option>UI设计</option>
+            <option>品牌设计</option>
+            <option>海报设计</option>
+            <option>图标设计</option>
+            <option>网页设计</option>
+            <option>其他</option>
+          </select>
+        </div>
+        <button class="btn-save" onclick="createProject()" style="padding: 10px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">创建作品</button>
+      `;
+      document.getElementById('saveBar').style.display = 'none';
+      currentProject = null;
+      renderProjectList();
+    }
+    
+    // 创建作品
+    async function createProject() {
+      const id = document.getElementById('newId').value.trim();
+      if (!id) { showToast('请输入标识', 'error'); return; }
+      
+      try {
+        const res = await fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id,
+            title: document.getElementById('newTitle').value,
+            description: document.getElementById('newDesc').value,
+            category: document.getElementById('newCategory').value,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('创建成功！', 'success');
+          loadProjects();
+          selectProject(id);
+        } else {
+          showToast(data.error || '创建失败', 'error');
+        }
+      } catch (err) {
+        showToast('创建失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 渲染编辑器
+    function renderEditor() {
+      if (!currentProject) return;
+      const main = document.getElementById('mainContent');
+      
+      main.innerHTML = `
+        <div class="tab-bar">
+          <button class="${currentTab === 'editor' ? 'active' : ''}" onclick="switchTab('editor')">✏️ 编辑</button>
+          <button class="${currentTab === 'pages' ? 'active' : ''}" onclick="switchTab('pages')">📄 页面</button>
+        </div>
+        
+        <div id="editorContent">
+          <h2>✏️ ${currentProject.title || '未命名作品'}</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>作品名称</label>
+              <input id="editTitle" value="${escapeHtml(currentProject.title || '')}" />
+            </div>
+            <div class="form-group">
+              <label>类别</label>
+              <select id="editCategory">
+                ${['UI设计', '品牌设计', '海报设计', '图标设计', '网页设计', '其他'].map(c => 
+                  `<option ${c === currentProject.category ? 'selected' : ''}>${c}</option>`
+                ).join('')}
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>封面图URL</label>
+            <input id="editCover" value="${escapeHtml(currentProject.cover || '')}" placeholder="输入图片链接，或留空使用默认" />
+          </div>
+          
+          <div class="form-group">
+            <label>作品描述</label>
+            <textarea id="editDescription">${escapeHtml(currentProject.description || '')}</textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>标签</label>
+            <div class="tag-input">
+              <input id="tagInput" placeholder="输入标签按回车添加" onkeydown="if(event.key==='Enter')addTag()" />
+              <button onclick="addTag()">添加</button>
+            </div>
+            <div class="tag-list" id="tagList">
+              ${(currentProject.tags || []).map(t => `<span class="tag">${t} <button onclick="removeTag('${t}')">×</button></span>`).join('')}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>作品图片画廊</label>
+            <div id="galleryList">
+              ${(currentProject.gallery || []).map((item, i) => `
+                <div class="gallery-item">
+                  <input value="${escapeHtml(item.image || '')}" placeholder="图片URL" onchange="updateGallery(${i}, 'image', this.value)" />
+                  <input value="${escapeHtml(item.caption || '')}" placeholder="说明（可选）" onchange="updateGallery(${i}, 'caption', this.value)" />
+                  <button onclick="removeGallery(${i})">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <button class="btn-add-gallery" onclick="addGalleryItem()">+ 添加图片</button>
+          </div>
+          
+          <div class="form-group">
+            <label>作品详情（支持 Markdown 格式）</label>
+            <textarea class="body-editor" id="editBody">${escapeHtml(currentProject.body || '')}</textarea>
+          </div>
+          
+          <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+            <label style="margin:0;">发布状态：</label>
+            <select id="editPublished" style="width:auto;">
+              <option value="true" ${currentProject.published ? 'selected' : ''}>已发布</option>
+              <option value="false" ${!currentProject.published ? 'selected' : ''}>草稿</option>
+            </select>
+          </div>
+        </div>
+        
+        <div id="pagesContent" style="display:none;">
+          <h2>📄 页面内容管理</h2>
+          
+          <div class="page-editor">
+            <h3 style="margin-bottom: 15px;">🏠 首页设置</h3>
+            <div id="homeEditor"></div>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">👤 关于我</h3>
+            <div id="aboutEditor"></div>
+          </div>
+        </div>
+      `;
+      
+      loadPages();
+    }
+    
+    // 加载页面内容
+    async function loadPages() {
+      try {
+        const homeRes = await fetch('/api/pages/home');
+        const homeData = await homeRes.json();
+        const aboutRes = await fetch('/api/pages/about');
+        const aboutData = await aboutRes.json();
+        
+        const homeEditor = document.getElementById('homeEditor');
+        if (homeEditor) {
+          homeEditor.innerHTML = `
+            <div class="form-group">
+              <label>大标题</label>
+              <input id="homeTitle" value="${escapeHtml(homeData.data?.hero_title || '')}" />
+            </div>
+            <div class="form-group">
+              <label>副标题</label>
+              <textarea id="homeSubtitle">${escapeHtml(homeData.data?.hero_subtitle || '')}</textarea>
+            </div>
+            <div class="form-group">
+              <label>背景图URL</label>
+              <input id="homeImage" value="${escapeHtml(homeData.data?.hero_image || '')}" placeholder="可选" />
+            </div>
+            <button class="btn-save" onclick="saveHomePage()" style="padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">保存首页设置</button>
+          `;
+        }
+        
+        const aboutEditor = document.getElementById('aboutEditor');
+        if (aboutEditor) {
+          aboutEditor.innerHTML = `
+            <div class="form-group">
+              <label>标题</label>
+              <input id="aboutTitle" value="${escapeHtml(aboutData.data?.title || '关于我')}" />
+            </div>
+            <div class="form-group">
+              <label>头像URL</label>
+              <input id="aboutAvatar" value="${escapeHtml(aboutData.data?.avatar || '')}" placeholder="头像图片链接" />
+            </div>
+            <div class="form-group">
+              <label>个人简介（支持 Markdown）</label>
+              <textarea class="body-editor" id="aboutBio">${escapeHtml(aboutData.data?.bio || '')}</textarea>
+            </div>
+            <div class="form-group">
+              <label>联系邮箱</label>
+              <input id="aboutEmail" value="${escapeHtml(aboutData.data?.email || '')}" />
+            </div>
+            <button class="btn-save" onclick="saveAboutPage()" style="padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">保存关于我</button>
+          `;
+        }
+      } catch (err) {
+        console.error('加载页面失败:', err);
+      }
+    }
+    
+    // 切换标签
+    function switchTab(tab) {
+      currentTab = tab;
+      const editor = document.getElementById('editorContent');
+      const pages = document.getElementById('pagesContent');
+      if (editor) editor.style.display = tab === 'editor' ? 'block' : 'none';
+      if (pages) pages.style.display = tab === 'pages' ? 'block' : 'none';
+      renderEditor();
+    }
+    
+    // 保存作品
+    async function saveProject() {
+      if (!currentProject) return;
+      
+      const tags = Array.from(document.querySelectorAll('#tagList .tag')).map(el => el.textContent.replace('×', '').trim());
+      const galleryItems = [];
+      document.querySelectorAll('#galleryList .gallery-item').forEach(el => {
+        const inputs = el.querySelectorAll('input');
+        if (inputs[0] && inputs[0].value) {
+          galleryItems.push({ image: inputs[0].value, caption: inputs[1]?.value || '' });
+        }
+      });
+      
+      const data = {
+        title: document.getElementById('editTitle')?.value || '',
+        description: document.getElementById('editDescription')?.value || '',
+        category: document.getElementById('editCategory')?.value || '其他',
+        cover: document.getElementById('editCover')?.value || '',
+        tags,
+        published: document.getElementById('editPublished')?.value === 'true',
+        date: currentProject.date,
+        body: document.getElementById('editBody')?.value || '',
+        gallery: galleryItems,
+      };
+      
+      try {
+        const res = await fetch(`/api/projects/${currentProject.id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+        if (result.success) {
+          showToast('✅ 保存成功！', 'success');
+          loadProjects();
+        } else {
+          showToast('保存失败: ' + (result.error || '未知错误'), 'error');
+        }
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 删除作品
+    async function deleteProject() {
+      if (!currentProject) return;
+      if (!confirm(`确定要删除「${currentProject.title}」吗？`)) return;
+      
+      try {
+        const res = await fetch(`/api/projects/${currentProject.id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.success) {
+          showToast('已删除', 'info');
+          currentProject = null;
+          document.getElementById('saveBar').style.display = 'none';
+          document.getElementById('mainContent').innerHTML = `
+            <div class="empty-state">
+              <p>👈 选择一个作品进行编辑</p>
+              <p style="font-size: 14px;">或点击"新建"创建新作品</p>
+            </div>
+          `;
+          loadProjects();
+        }
+      } catch (err) {
+        showToast('删除失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 标签操作
+    function addTag() {
+      const input = document.getElementById('tagInput');
+      if (!input || !input.value.trim()) return;
+      const list = document.getElementById('tagList');
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.innerHTML = `${input.value.trim()} <button onclick="this.parentElement.remove()">×</button>`;
+      list.appendChild(tag);
+      input.value = '';
+    }
+    
+    function removeTag(tag) {
+      // 通过 UI 移除
+    }
+    
+    // 画廊操作
+    let galleryIndex = (currentProject?.gallery || []).length;
+    function addGalleryItem() {
+      const list = document.getElementById('galleryList');
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+      div.innerHTML = `
+        <input placeholder="图片URL" />
+        <input placeholder="说明（可选）" />
+        <button onclick="this.parentElement.remove()">×</button>
+      `;
+      list.appendChild(div);
+    }
+    
+    function updateGallery(index, field, value) {
+      // 已通过 DOM 直接管理
+    }
+    
+    function removeGallery(index) {
+      const items = document.querySelectorAll('#galleryList .gallery-item');
+      if (items[index]) items[index].remove();
+    }
+    
+    // 保存首页
+    async function saveHomePage() {
+      try {
+        const res = await fetch('/api/pages/home', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hero_title: document.getElementById('homeTitle')?.value || '',
+            hero_subtitle: document.getElementById('homeSubtitle')?.value || '',
+            hero_image: document.getElementById('homeImage')?.value || '',
+          }),
+        });
+        const data = await res.json();
+        if (data.success) showToast('✅ 首页设置已保存', 'success');
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 保存关于我
+    async function saveAboutPage() {
+      try {
+        const res = await fetch('/api/pages/about', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: document.getElementById('aboutTitle')?.value || '关于我',
+            avatar: document.getElementById('aboutAvatar')?.value || '',
+            bio: document.getElementById('aboutBio')?.value || '',
+            email: document.getElementById('aboutEmail')?.value || '',
+            body: document.getElementById('aboutBio')?.value || '',
+          }),
+        });
+        const data = await res.json();
+        if (data.success) showToast('✅ 关于我已保存', 'success');
+      } catch (err) {
+        showToast('保存失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 部署
+    async function deploy() {
+      showToast('🚀 正在推送到 GitHub...', 'info');
+      try {
+        const res = await fetch('/api/deploy', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ ' + data.message, 'success');
+        } else {
+          showToast('❌ ' + (data.error || '部署失败'), 'error');
+        }
+      } catch (err) {
+        showToast('❌ 部署失败: ' + err.message, 'error');
+      }
+    }
+    
+    // 工具函数
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // 初始化
+    loadProjects();
+  </script>
+</body>
+</html>

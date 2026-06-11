@@ -1,0 +1,15 @@
+#!/bin/bash
+cd "$(dirname "$0")/cms-tool"
+echo "========================================"
+echo "  🎨 作品集 CMS 管理工具"
+echo "========================================"
+echo ""
+echo "  🌐 打开: http://localhost:3001"
+echo ""
+echo "  编辑完成后点击「部署到网站」按钮"
+echo "  即可推送到 GitHub 自动部署"
+echo ""
+echo "  按 Ctrl+C 停止"
+echo "========================================"
+echo ""
+npm start
