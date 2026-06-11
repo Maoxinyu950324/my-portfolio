@@ -22,8 +22,10 @@
   animation: blurInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* === Shimmer 按钮 === */
+/* === Shimmer 玻璃液态按钮 === */
 .shimmer-btn {
+  --btn-bg: #111;
+  --radius: 4px;
   position: relative;
   display: inline-flex;
   min-height: 48px;
@@ -31,8 +33,8 @@
   justify-content: center;
   overflow: hidden;
   border: 1px solid rgba(232,232,232,0.28);
-  border-radius: 4px;
-  background: #111;
+  border-radius: var(--radius);
+  background: var(--btn-bg);
   color: #fff;
   cursor: pointer;
   isolation: isolate;
@@ -41,24 +43,42 @@
   letter-spacing: 0.06em;
   font-family: inherit;
   transform: translateZ(0);
-  transition: border-color 0.18s ease, transform 0.18s ease;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
 }
+/* 光扫动画 */
 .shimmer-btn::before {
   content: '';
   position: absolute;
   inset: -42%;
   z-index: 0;
-  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 36%, rgba(255,255,255,0.15) 47%, rgba(20,214,247,0.4) 52%, transparent 64%);
-  opacity: 0.35;
-  animation: shimmer-sweep 2.5s linear infinite;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 36%, rgba(255,255,255,0.15) 47%, rgba(20,214,247,0.65) 52%, transparent 64%);
+  opacity: 0.92;
+  transform: translate(-65%) rotate(8deg);
+  animation: shimmer-sweep 3s linear infinite;
 }
+/* 玻璃面板 */
 .shimmer-btn::after {
   content: '';
   position: absolute;
   inset: 1px;
   z-index: 1;
-  border-radius: 3px;
-  background: #111;
+  border-radius: calc(var(--radius) - 1px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02)), var(--btn-bg);
+}
+/* 动感边框光 */
+.shimmer-btn .border-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.42), transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  padding: 1px;
+  pointer-events: none;
 }
 .shimmer-btn span {
   position: relative;
