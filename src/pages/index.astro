@@ -22,7 +22,7 @@ introLines.forEach((line, li) => {
   <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease, visibility 0.6s ease;">
 
     <!-- 实心渐变球（仅在开屏页） -->
-    <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;"></div>
+    <div id="cursor-blob" style="position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #fff 0%, #14d6f7 25%, #5227ff 55%, #fa007b 100%);mix-blend-mode:difference;will-change:transform;opacity:0.95;"></div>
 
     <!-- 标题 -->
     <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;position:relative;z-index:10;">
@@ -121,21 +121,21 @@ introLines.forEach((line, li) => {
 
       var speed = Math.sqrt(vx * vx + vy * vy);
       var angle = Math.atan2(vy, vx);
-      var stretch = Math.min(1 + speed * 0.015, 1.6);
+      var stretch = Math.min(1 + speed * 0.025, 2.0);
 
       // 在屏幕坐标系下分解拉伸，不旋转球体，渐变方向固定不变
       var cosA = Math.cos(angle);
       var sinA = Math.sin(angle);
       var targetSX = pressScale * Math.sqrt(stretch * stretch * cosA * cosA + sinA * sinA / (stretch * stretch));
       var targetSY = pressScale * Math.sqrt(stretch * stretch * sinA * sinA + cosA * cosA / (stretch * stretch));
-      scaleX += (targetSX - scaleX) * 0.15;
-      scaleY += (targetSY - scaleY) * 0.15;
+      scaleX += (targetSX - scaleX) * 0.08;
+      scaleY += (targetSY - scaleY) * 0.08;
 
-      cx += (mx - cx) * 0.14;
-      cy += (my - cy) * 0.14;
+      cx += (mx - cx) * 0.08;
+      cy += (my - cy) * 0.08;
 
       blob.style.transform =
-        'translate3d(' + (cx - 70) + 'px, ' + (cy - 70) + 'px, 0) ' +
+        'translate3d(' + (cx - 100) + 'px, ' + (cy - 100) + 'px, 0) ' +
         'scaleX(' + scaleX + ') scaleY(' + scaleY + ')';
 
       requestAnimationFrame(animate);

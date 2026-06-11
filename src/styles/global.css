@@ -22,9 +22,9 @@
   animation: blurInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* === Shimmer 玻璃液态按钮 === */
+/* === Shimmer 玻璃液态按钮（iOS 液态玻璃） === */
 .shimmer-btn {
-  --btn-bg: rgb(8, 8, 8);
+  --btn-bg: rgba(255,255,255,0.04);
   --radius: 999px;
   position: relative;
   display: inline-flex;
@@ -32,9 +32,11 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border: 0.8px solid rgba(232,232,232,0.28);
+  border: 0.8px solid rgba(232,232,232,0.18);
   border-radius: var(--radius);
   background: var(--btn-bg);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
   color: #fff;
   cursor: none;
   isolation: isolate;
@@ -52,8 +54,8 @@
   position: absolute;
   inset: -42%;
   z-index: 0;
-  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 36%, rgba(255,255,255,0.15) 47%, rgba(20,214,247,0.65) 52%, transparent 64%);
-  opacity: 0.92;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.06) 38%, rgba(255,255,255,0.12) 48%, rgba(20,214,247,0.55) 52%, transparent 64%);
+  opacity: 0.85;
   transform: translate(-65%) rotate(8deg);
   animation: shimmer-sweep 2.3s linear infinite;
 }
@@ -64,7 +66,7 @@
   inset: 1px;
   z-index: 1;
   border-radius: calc(var(--radius) - 1px);
-  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02)), var(--btn-bg);
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)), rgba(255,255,255,0.03);
 }
 /* 动感边框光 */
 .shimmer-btn .border-glow {
