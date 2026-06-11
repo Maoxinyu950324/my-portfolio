@@ -22,26 +22,27 @@
   animation: blurInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* === Shimmer 玻璃液态按钮 === */
+/* === Shimmer 玻璃液态按钮 (完全对齐参考站) === */
 .shimmer-btn {
-  --btn-bg: #111;
-  --radius: 4px;
+  --btn-bg: rgb(8, 8, 8);
+  --radius: 999px;
   position: relative;
   display: inline-flex;
   min-height: 48px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border: 1px solid rgba(232,232,232,0.28);
+  border: 0.8px solid rgba(232,232,232,0.28);
   border-radius: var(--radius);
   background: var(--btn-bg);
   color: #fff;
-  cursor: pointer;
+  cursor: none;
   isolation: isolate;
-  padding: 0 28px;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  font-family: inherit;
+  padding: 0 20px;
+  font-size: 13.33px;
+  font-weight: 400;
+  font-family: Arial, sans-serif;
+  letter-spacing: normal;
   transform: translateZ(0);
   transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
 }
@@ -54,7 +55,7 @@
   background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 36%, rgba(255,255,255,0.15) 47%, rgba(20,214,247,0.65) 52%, transparent 64%);
   opacity: 0.92;
   transform: translate(-65%) rotate(8deg);
-  animation: shimmer-sweep 3s linear infinite;
+  animation: shimmer-sweep 2.3s linear infinite;
 }
 /* 玻璃面板 */
 .shimmer-btn::after {
@@ -80,9 +81,12 @@
   padding: 1px;
   pointer-events: none;
 }
-.shimmer-btn span {
+.shimmer-btn span:not(.border-glow) {
   position: relative;
   z-index: 3;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: normal;
 }
 .shimmer-btn:hover {
   border-color: rgba(232,232,232,0.62);

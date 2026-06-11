@@ -10,7 +10,7 @@ const projects = allProjects
   .map((p, i) => ({ title: p.data.title, cover: p.data.cover || '', category: p.data.category || '', slug: p.id, num: i + 1 }));
 
 const introLines = ['MAOXINYU', 'DESIGN', 'PORTFOLIO'];
-const allChars: { char: string; lineIndex: number; charIndex: number }[] = [];
+const allChars = [];
 introLines.forEach((line, li) => {
   line.split('').forEach((char, ci) => allChars.push({ char, lineIndex: li, charIndex: ci }));
 });
@@ -31,11 +31,11 @@ introLines.forEach((line, li) => {
       </defs>
     </svg>
 
-    <!-- 4 层跟随光标的光球 -->
-
+    <!-- 4 层跟随光标的光球（只在开屏页） -->
+    <canvas id="blob-canvas" style="position:fixed;top:0;left:0;z-index:3;pointer-events:none;filter:url(#goo);"></canvas>
 
     <!-- 标题 -->
-    <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;">
+    <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;position:relative;z-index:10;">
       {introLines.map((line, li) => (
         <div style="display:block;">
           {line.split('').map((char, ci) => (
@@ -47,7 +47,7 @@ introLines.forEach((line, li) => {
       ))}
     </h1>
     <!-- Shimmer 按钮 -->
-    <button id="intro-btn" type="button" class="shimmer-btn" style="margin-top:3.5rem;">
+    <button id="intro-btn" type="button" class="shimmer-btn" style="margin-top:3.5rem;position:relative;z-index:10;">
       <span class="border-glow"></span>
       <span>Start with sound</span>
     </button>
@@ -83,7 +83,6 @@ introLines.forEach((line, li) => {
     var btn = document.getElementById('intro-btn');
     var intro = document.getElementById('intro-screen');
     var main = document.getElementById('main-content');
-
     function startExperience() {
       if (started) return;
       started = true;
@@ -100,22 +99,23 @@ introLines.forEach((line, li) => {
     });
   })();
 
-  // === 4 层跟随光标的实心光球（完全复刻参考站） ===
+  // === 4 层跟随光标的实心渐变光球（完整复刻，只在开屏页） ===
   (function() {
-    // 创建 canvas 挂到 body 上，不随 intro 消失
-    var canvas = document.createElement('canvas');
-    canvas.id = 'blob-canvas';
-    canvas.style.cssText = 'position:fixed;top:0;left:0;z-index:9997;pointer-events:none;';
+    var canvas = document.getElementById('blob-canvas');
+    if (!canvas) return;
+    var intro = document.getElementById('intro-screen');
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    document.body.appendChild(canvas);
     var ctx = canvas.getContext('2d');
 
-    // 4 层参数（完全对齐参考站）
+    // 参考站精确参数
     var sizes = [95, 125, 75, 62];
     var innerSizes = [18, 34, 24, 18];
     var opacities = [0.82, 0.54, 0.42, 0.32];
-    var speeds = [0.12, 0.06, 0.04, 0.03]; // fast: 0.08~0.12, slow: ~0.02 at 60fps
+    // GSAP duration 转换: factor = 1 - e^(-16/durationMs)
+    // fastDuration:0.08s -> 0.18, slowDuration:0.42s -> 0.037 -> 分层
+    var speeds = [0.18, 0.08, 0.06, 0.04];
 
     var mx = window.innerWidth / 2, my = window.innerHeight / 2;
     var cx = [mx, mx, mx, mx], cy = [my, my, my, my];
@@ -131,8 +131,11 @@ introLines.forEach((line, li) => {
     });
 
     function drawBlob(x, y, size, innerSize, opacity) {
-      // 外层渐变（白→青→紫→粉）
-      var outerGrad = ctx.createRadialGradient(x, y, 0, x, y, size);
+      // 外层渐变: radial-gradient(circle at 32% 28%, #ffffff 0%, #14d6f7 18%, #5227ff 48%, #fa007b 100%)
+      // 模拟 circle at 32% 28% 偏移
+      var ox = x - size * 0.18;
+      var oy = y - size * 0.22;
+      var outerGrad = ctx.createRadialGradient(ox, oy, 0, x, y, size);
       outerGrad.addColorStop(0, '#ffffff');
       outerGrad.addColorStop(0.18, '#14d6f7');
       outerGrad.addColorStop(0.48, '#5227ff');
@@ -141,19 +144,19 @@ introLines.forEach((line, li) => {
       ctx.save();
       ctx.globalAlpha = opacity;
 
-      // 阴影
+      // 阴影: rgba(250,0,123,0.46) blur 16
       ctx.shadowColor = 'rgba(250,0,123,0.46)';
       ctx.shadowBlur = 16;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
 
-      // 外层
+      // 外层实心圆
       ctx.beginPath();
       ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fillStyle = outerGrad;
       ctx.fill();
 
-      // 内层白核
+      // 内层白核 innerColor: rgba(255,255,255,0.86)
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
       var innerGrad = ctx.createRadialGradient(x, y, 0, x, y, innerSize);
@@ -168,6 +171,7 @@ introLines.forEach((line, li) => {
     }
 
     function animate() {
+      if (intro && intro.style.visibility === 'hidden') return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (var i = 0; i < 4; i++) {
