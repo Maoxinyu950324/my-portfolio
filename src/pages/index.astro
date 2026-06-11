@@ -9,7 +9,6 @@ const projects = allProjects
   .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
   .map((p, i) => ({ title: p.data.title, cover: p.data.cover || '', category: p.data.category || '', slug: p.id, num: i + 1 }));
 
-const siteTitle = config.siteName || 'PORTFOLIO';
 const introLines = ['MAOXINYU', 'DESIGN', 'PORTFOLIO'];
 const allChars: { char: string; lineIndex: number; charIndex: number }[] = [];
 introLines.forEach((line, li) => {
@@ -17,12 +16,24 @@ introLines.forEach((line, li) => {
 });
 ---
 
-<BaseLayout title={siteTitle} description={config.siteDescription}>
-  <!-- 动态背景光晕 -->
-  <div id="bg-blob" style="position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0.25;"></div>
+<BaseLayout title={config.siteName || 'PORTFOLIO'} description={config.siteDescription}>
 
   <!-- 开场全屏 -->
   <div id="intro-screen" style="position:fixed;inset:0;z-index:9999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.6s ease, visibility 0.6s ease;">
+
+    <!-- SVG 滤镜定义 -->
+    <svg style="position:absolute;width:0;height:0;">
+      <defs>
+        <filter id="goo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="24" result="blur" />
+          <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 35 -10" result="goo" />
+        </filter>
+      </defs>
+    </svg>
+
+    <!-- 4 层跟随光标的光球 -->
+
+
     <!-- 标题 -->
     <h1 style="font-size:clamp(2.5rem, 10vw, 8rem);font-weight:900;color:#fff;text-align:center;line-height:1.1;letter-spacing:-0.02em;">
       {introLines.map((line, li) => (
@@ -40,10 +51,6 @@ introLines.forEach((line, li) => {
       <span>Start with sound</span>
     </button>
   </div>
-
-  <!-- 跟随光标的光球（分层，全局存在） -->
-  <div id="cursor-blob-1" class="cursor-blob-layer"></div>
-  <div id="cursor-blob-2" class="cursor-blob-layer"></div>
 
   <!-- 主内容 -->
   <div id="main-content" style="opacity:0;transform:translateY(20px);transition:opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;">
@@ -69,23 +76,6 @@ introLines.forEach((line, li) => {
 </BaseLayout>
 
 <script>
-  // === 背景光晕（鼠标跟随）===
-  (function() {
-    var blob = document.getElementById('bg-blob');
-    var mx = 0.5, my = 0.5;
-    document.addEventListener('mousemove', function(e) {
-      mx = e.clientX / window.innerWidth;
-      my = e.clientY / window.innerHeight;
-    });
-    function updateBlob() {
-      if (!blob) return;
-      var cx = mx * 100, cy = my * 100;
-      blob.innerHTML = '<div style="position:absolute;top:'+(cy-30)+'%;left:'+(cx-30)+'%;width:60%;height:60%;background:radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(236,72,153,0.08) 40%, transparent 70%);filter:blur(80px);border-radius:50%;transform:translate('+((mx-0.5)*20)+'px,'+((my-0.5)*20)+'px);"></div>';
-      requestAnimationFrame(updateBlob);
-    }
-    updateBlob();
-  })();
-
   // === 开场按钮 ===
   (function() {
     var started = false;
@@ -96,79 +86,100 @@ introLines.forEach((line, li) => {
     function startExperience() {
       if (started) return;
       started = true;
-      // 播放背景音乐
       var music = document.getElementById('bg-music');
-      if (music) {
-        music.volume = 0.3;
-        music.play().catch(function(){});
-      }
-      // 渐出 intro
+      if (music) { music.volume = 0.3; music.play().catch(function(){}); }
       intro.style.opacity = '0';
-      setTimeout(function() {
-        intro.style.visibility = 'hidden';
-      }, 600);
-      // 渐入 main
+      setTimeout(function() { intro.style.visibility = 'hidden'; }, 600);
       main.style.opacity = '1';
       main.style.transform = 'translateY(0)';
     }
-
-    if (btn) {
-      btn.addEventListener('click', startExperience);
-    }
+    if (btn) btn.addEventListener('click', startExperience);
     document.addEventListener('keydown', function(e) {
       if (intro && intro.style.visibility !== 'hidden') startExperience();
     });
   })();
 
-  // === 双层层跟随光标的光球 ===
+  // === 4 层跟随光标的实心光球（完全复刻参考站） ===
   (function() {
-    var blob1 = document.getElementById('cursor-blob-1');
-    var blob2 = document.getElementById('cursor-blob-2');
-    if (!blob1 || !blob2) return;
-    var bx = window.innerWidth / 2, by = window.innerHeight / 2;
-    var cx1 = bx, cy1 = by, cx2 = bx, cy2 = by;
+    var intro = document.getElementById('intro-screen');
+    if (!intro) return;
+
+    // 创建 canvas
+    var canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;top:0;left:0;z-index:9997;pointer-events:none;';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    intro.appendChild(canvas);
+    var ctx = canvas.getContext('2d');
+
+    // 4 层参数（完全对齐参考站）
+    var sizes = [95, 125, 75, 62];
+    var innerSizes = [18, 34, 24, 18];
+    var opacities = [0.82, 0.54, 0.42, 0.32];
+    var speeds = [0.12, 0.06, 0.04, 0.03]; // fast: 0.08~0.12, slow: ~0.02 at 60fps
+
+    var mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    var cx = [mx, mx, mx, mx], cy = [my, my, my, my];
+
     document.addEventListener('mousemove', function(e) {
-      bx = e.clientX;
-      by = e.clientY;
+      mx = e.clientX;
+      my = e.clientY;
     });
+
+    window.addEventListener('resize', function() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    function drawBlob(x, y, size, innerSize, opacity) {
+      // 外层渐变（白→青→紫→粉）
+      var outerGrad = ctx.createRadialGradient(x, y, 0, x, y, size);
+      outerGrad.addColorStop(0, '#ffffff');
+      outerGrad.addColorStop(0.18, '#14d6f7');
+      outerGrad.addColorStop(0.48, '#5227ff');
+      outerGrad.addColorStop(1, '#fa007b');
+
+      ctx.save();
+      ctx.globalAlpha = opacity;
+
+      // 阴影
+      ctx.shadowColor = 'rgba(250,0,123,0.46)';
+      ctx.shadowBlur = 16;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+
+      // 外层
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = outerGrad;
+      ctx.fill();
+
+      // 内层白核
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+      var innerGrad = ctx.createRadialGradient(x, y, 0, x, y, innerSize);
+      innerGrad.addColorStop(0, 'rgba(255,255,255,0.86)');
+      innerGrad.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.beginPath();
+      ctx.arc(x, y, innerSize, 0, Math.PI * 2);
+      ctx.fillStyle = innerGrad;
+      ctx.fill();
+
+      ctx.restore();
+    }
+
     function animate() {
-      cx1 += (bx - cx1) * 0.06;
-      cy1 += (by - cy1) * 0.06;
-      cx2 += (bx - cx2) * 0.1;
-      cy2 += (by - cy2) * 0.1;
-      var s1 = 220, s2 = 160;
-      blob1.style.transform = 'translate3d(' + (cx1 - s1/2) + 'px, ' + (cy1 - s1/2) + 'px, 0)';
-      blob2.style.transform = 'translate3d(' + (cx2 - s2/2) + 'px, ' + (cy2 - s2/2) + 'px, 0)';
+      if (intro.style.visibility === 'hidden') return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (var i = 0; i < 4; i++) {
+        cx[i] += (mx - cx[i]) * speeds[i];
+        cy[i] += (my - cy[i]) * speeds[i];
+        drawBlob(cx[i], cy[i], sizes[i], innerSizes[i], opacities[i]);
+      }
+
       requestAnimationFrame(animate);
     }
     animate();
   })();
 </script>
-
-<style>
-  /* 双层层跟随光标光球 */
-  .cursor-blob-layer {
-    position: fixed;
-    top: 0; left: 0;
-    pointer-events: none;
-    z-index: 9997;
-    border-radius: 50%;
-    will-change: transform;
-  }
-  /* 外层大光晕 */
-  #cursor-blob-1 {
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.15) 0%, rgba(20,214,247,0.2) 25%, rgba(82,39,255,0.15) 55%, transparent 78%);
-    filter: blur(50px);
-    mix-blend-mode: screen;
-  }
-  /* 内层亮核 */
-  #cursor-blob-2 {
-    width: 160px;
-    height: 160px;
-    background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.5) 0%, rgba(250,0,123,0.2) 30%, rgba(20,214,247,0.15) 60%, transparent 80%);
-    filter: blur(25px);
-    mix-blend-mode: screen;
-  }
-</style>
