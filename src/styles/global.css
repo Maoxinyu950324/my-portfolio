@@ -3,53 +3,110 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --color-brand-50: #1a1a1a;
-    --color-brand-100: #2a2a2a;
-    --color-brand-200: #3a3a3a;
-    --color-brand-300: #555;
-    --color-brand-400: #777;
-    --color-brand-500: #999;
-    --color-brand-600: #bbb;
-    --color-brand-700: #ccc;
-    --color-brand-800: #ddd;
-    --color-brand-900: #fff;
-    --color-bg: #141414;
-    --color-text: #e5e5e5;
-    --color-text-secondary: #999;
-    --color-border: #2a2a2a;
-    --color-card-bg: #1a1a1a;
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-display: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-  body { font-family: var(--font-sans); background-color: var(--color-bg); color: var(--color-text); }
+  body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #000; color: #e5e5e5; }
   img { user-select: none; display: block; max-width: 100%; }
   a { text-decoration: none; color: inherit; }
+  .cursor-none, .cursor-none * { cursor: none !important; }
 }
 
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes letterReveal { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+/* === 开场逐字动画 === */
+@keyframes blurInUp {
+  from { opacity: 0; transform: translateY(40px); filter: blur(12px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.intro-char {
+  display: inline-block;
+  opacity: 0;
+  animation: blurInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-.animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
-.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
-.animate-letter { display: inline-block; opacity: 0; animation: letterReveal 0.6s ease-out forwards; }
+/* === Shimmer 按钮 === */
+.shimmer-btn {
+  position: relative;
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(232,232,232,0.28);
+  border-radius: 4px;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  isolation: isolate;
+  padding: 0 28px;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  font-family: inherit;
+  transform: translateZ(0);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+.shimmer-btn::before {
+  content: '';
+  position: absolute;
+  inset: -42%;
+  z-index: 0;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,0.08) 36%, rgba(255,255,255,0.15) 47%, rgba(20,214,247,0.4) 52%, transparent 64%);
+  opacity: 0.35;
+  animation: shimmer-sweep 2.5s linear infinite;
+}
+.shimmer-btn::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: 1;
+  border-radius: 3px;
+  background: #111;
+}
+.shimmer-btn span {
+  position: relative;
+  z-index: 3;
+}
+.shimmer-btn:hover {
+  border-color: rgba(232,232,232,0.62);
+  transform: translateY(-1px);
+}
+@keyframes shimmer-sweep {
+  0% { transform: translate(-68%) rotate(8deg); }
+  100% { transform: translate(68%) rotate(8deg); }
+}
 
+/* === 光标 === */
+#custom-cursor svg { transition: transform 0.15s ease; }
+
+/* === 瀑布流 === */
 .masonry-grid { column-count: 3; column-gap: 4px; }
 @media (max-width: 1024px) { .masonry-grid { column-count: 2; } }
 @media (max-width: 640px) { .masonry-grid { column-count: 1; } }
-
-.masonry-item { break-inside: avoid; margin-bottom: 4px; position: relative; cursor: pointer; overflow: hidden; }
-.masonry-item img { width: 100%; height: auto; display: block; transition: transform 0.5s ease, filter 0.5s ease; filter: brightness(0.85); }
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 4px;
+  position: relative;
+  cursor: none;
+  overflow: hidden;
+}
+.masonry-item img {
+  width: 100%; height: auto; display: block;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: brightness(0.85);
+}
 .masonry-item:hover img { transform: scale(1.03); filter: brightness(1); }
-.masonry-item .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+.masonry-item .overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s ease;
+}
 .masonry-item:hover .overlay { opacity: 1; }
 .masonry-item .overlay .num { font-size: 2.5rem; font-weight: 700; color: #fff; line-height: 1; }
 .masonry-item .overlay .tt { font-size: 0.75rem; color: #ccc; margin-top: 0.5rem; text-align: center; padding: 0 1rem; }
 
-.nav-link { position: relative; transition: color 0.3s; }
-.nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: currentColor; transition: width 0.3s; }
+/* === 导航 === */
+.nav-link { position: relative; transition: color 0.3s; cursor: none; }
+.nav-link::after {
+  content: ''; position: absolute; bottom: -2px; left: 0;
+  width: 0; height: 1px; background: currentColor; transition: width 0.3s;
+}
 .nav-link:hover::after, .nav-link.active::after { width: 100%; }
